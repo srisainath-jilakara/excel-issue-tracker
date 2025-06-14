@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Excel & Issue Tracker</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
+        /* Base Styles */
         * {
             margin: 0;
             padding: 0;
@@ -15,130 +17,172 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start; /* Align content to the top */
+            align-items: center;
+            padding: 20px;
         }
 
         .container {
             max-width: 1400px;
+            width: 100%;
             margin: 0 auto;
             padding: 20px;
+            background: rgba(255, 255, 255, 0.95); /* Slightly transparent white for a modern look */
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(8px); /* Subtle blur effect */
+            -webkit-backdrop-filter: blur(8px);
+            margin-bottom: 20px; /* Space at the bottom */
         }
 
         .header {
             text-align: center;
-            color: white;
+            color: #333;
             margin-bottom: 30px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .header h1 {
-            font-size: 2.5rem;
+            font-size: 2.8rem;
             margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .header p {
+            color: #555;
+            font-size: 1.1rem;
         }
 
+        /* Connection Status */
         .config-section {
-            background: rgba(255,255,255,0.95);
+            background: rgba(255,255,255,0.9);
             border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            border: 1px solid #e0e0e0;
         }
 
         .config-section h3 {
             color: #333;
             margin-bottom: 15px;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
         }
 
         .config-form {
             display: grid;
-            grid-template-columns: 1fr 1fr auto;
-            gap: 10px;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
             align-items: end;
         }
 
+        /* Status Indicator */
+        .status-indicator {
+            padding: 8px 15px;
+            border-radius: 25px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: inline-block;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            animation: pulse 1.5s infinite alternate;
+        }
+
+        .status-connected {
+            background: #e8f5e8; /* Light Green */
+            color: #388e3c; /* Dark Green */
+        }
+
+        .status-disconnected {
+            background: #ffebee; /* Light Red */
+            color: #d32f2f; /* Dark Red */
+        }
+
+        @keyframes pulse {
+            from { opacity: 0.8; transform: scale(1); }
+            to { opacity: 1; transform: scale(1.02); }
+        }
+
+        /* Tabs */
         .tabs {
             display: flex;
-            margin-bottom: 20px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
-            padding: 5px;
-            backdrop-filter: blur(10px);
+            margin-bottom: 25px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 15px;
+            padding: 8px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
         }
 
         .tab {
             flex: 1;
-            padding: 12px 20px;
+            padding: 14px 25px;
             text-align: center;
             background: transparent;
             border: none;
             color: white;
             cursor: pointer;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            font-size: 16px;
-            font-weight: 500;
+            border-radius: 12px;
+            transition: all 0.4s ease;
+            font-size: 17px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
         }
 
         .tab.active {
-            background: rgba(255,255,255,0.2);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
         }
 
         .tab:hover:not(.active) {
             background: rgba(255,255,255,0.1);
+            transform: translateY(-1px);
         }
 
         .tab-content {
             background: rgba(255,255,255,0.95);
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            backdrop-filter: blur(10px);
-            min-height: 600px;
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: 0 12px 35px rgba(0,0,0,0.2);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            min-height: 650px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .hidden {
             display: none;
         }
 
-        .status-indicator {
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 500;
-            margin-bottom: 15px;
-            display: inline-block;
-        }
-
-        .status-connected {
-            background: #e8f5e8;
-            color: #388e3c;
-        }
-
-        .status-disconnected {
-            background: #ffebee;
-            color: #d32f2f;
-        }
-
-        /* Excel Tab Styles */
-        .excel-controls {
-            margin-bottom: 20px;
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
+        /* Buttons */
         .btn {
-            padding: 10px 20px;
+            padding: 12px 25px;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
+            font-size: 15px;
+            font-weight: 600;
             transition: all 0.3s ease;
             text-decoration: none;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
         .btn-primary {
@@ -157,65 +201,23 @@
         }
 
         .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
         .btn:disabled {
-            opacity: 0.6;
+            opacity: 0.5;
             cursor: not-allowed;
             transform: none;
+            box-shadow: none;
         }
 
-        .spreadsheet-container {
-            overflow: auto;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            max-height: 500px;
-            background: white;
-        }
-
-        .spreadsheet {
-            border-collapse: collapse;
-            width: 100%;
-            min-width: 800px;
-        }
-
-        .spreadsheet td, .spreadsheet th {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-            position: relative;
-        }
-
-        .spreadsheet th {
-            background: linear-gradient(135deg, #f5f5f5, #e8e8e8);
-            font-weight: bold;
-            text-align: center;
-        }
-
-        .spreadsheet input {
-            width: 100%;
-            border: none;
-            padding: 4px;
-            background: transparent;
-            font-size: 14px;
-        }
-
-        .spreadsheet input:focus {
-            outline: 2px solid #667eea;
-            background: #f0f4ff;
-        }
-
-        /* Issues Tab Styles */
-        .issue-form {
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            padding: 25px;
-            border-radius: 12px;
-            margin-bottom: 25px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-
+        /* Form Elements */
         .form-group {
             margin-bottom: 20px;
         }
@@ -224,22 +226,25 @@
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
-            color: #333;
+            color: #444;
+            font-size: 15px;
         }
 
         .form-group input, .form-group select, .form-group textarea {
             width: 100%;
             padding: 12px;
-            border: 2px solid #e0e0e0;
+            border: 1px solid #ddd;
             border-radius: 8px;
-            font-size: 14px;
-            transition: border-color 0.3s ease;
+            font-size: 15px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            background: #f9f9f9;
         }
 
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
             outline: none;
             border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+            background: white;
         }
 
         .form-row {
@@ -248,21 +253,158 @@
             gap: 20px;
         }
 
+        /* Messages */
+        .error-message, .success-message, .info-message {
+            padding: 12px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 15px;
+            font-weight: 500;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        .error-message {
+            background: #ffebee; /* Light Red */
+            color: #c62828; /* Dark Red */
+            border: 1px solid #ffcdd2;
+        }
+
+        .success-message {
+            background: #e8f5e8; /* Light Green */
+            color: #2e7d32; /* Dark Green */
+            border: 1px solid #c8e6c9;
+        }
+
+        .info-message {
+            background: #e3f2fd; /* Light Blue */
+            color: #1565c0; /* Dark Blue */
+            border: 1px solid #bbdefb;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Excel Tab Specific */
+        .excel-controls {
+            margin-bottom: 25px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .spreadsheet-container {
+            overflow: auto;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            max-height: 550px; /* Adjusted for better viewing */
+            background: white;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .spreadsheet {
+            border-collapse: collapse;
+            width: 100%;
+            min-width: 900px; /* Ensure a decent width */
+        }
+
+        .spreadsheet td, .spreadsheet th {
+            border: 1px solid #eee;
+            padding: 0; /* Remove padding from TD */
+            text-align: left;
+            position: relative;
+            vertical-align: middle;
+        }
+
+        .spreadsheet th {
+            background: linear-gradient(180deg, #f8f8f8, #f0f0f0);
+            font-weight: bold;
+            text-align: center;
+            padding: 10px 8px; /* Padding for headers */
+            color: #555;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .spreadsheet input {
+            width: 100%;
+            height: 40px; /* Fixed height for inputs */
+            border: none;
+            padding: 8px 12px; /* Padding inside input */
+            background: transparent;
+            font-size: 14px;
+            transition: background-color 0.2s ease;
+            box-shadow: inset 0 0 0 1px transparent; /* For focus effect */
+        }
+
+        .spreadsheet input:focus {
+            outline: none;
+            background: #eef4ff; /* Light blue background on focus */
+            box-shadow: inset 0 0 0 1px #667eea; /* Thin border on focus */
+        }
+        
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            border-radius: 15px;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+
+        /* Issues Tab Specific */
+        .issue-form {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            border: 1px solid #e0e0e0;
+        }
+
         .issues-list {
             background: white;
-            border-radius: 12px;
+            border-radius: 15px;
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            border: 1px solid #e0e0e0;
         }
 
         .issue-item {
-            padding: 20px;
+            padding: 20px 25px;
             border-bottom: 1px solid #f0f0f0;
             transition: background-color 0.3s ease;
+            position: relative; /* For action buttons */
         }
 
         .issue-item:hover {
-            background-color: #f8f9fa;
+            background-color: #fcfdff;
         }
 
         .issue-item:last-child {
@@ -278,167 +420,312 @@
 
         .issue-title {
             font-weight: bold;
-            font-size: 16px;
+            font-size: 18px;
             color: #333;
         }
 
         .issue-status {
-            padding: 4px 12px;
-            border-radius: 20px;
+            padding: 6px 15px;
+            border-radius: 25px;
             font-size: 12px;
-            font-weight: 500;
+            font-weight: 600;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
         }
 
         .status-open {
-            background: #e3f2fd;
-            color: #1976d2;
+            background: #ffe0b2; /* Light Orange */
+            color: #ef6c00; /* Dark Orange */
         }
 
         .status-in-progress {
-            background: #fff3e0;
-            color: #f57c00;
+            background: #bbdefb; /* Light Blue */
+            color: #1976d2; /* Dark Blue */
         }
 
         .status-closed {
-            background: #e8f5e8;
-            color: #388e3c;
+            background: #c8e6c9; /* Light Green */
+            color: #2e7d32; /* Dark Green */
         }
 
         .issue-meta {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 8px;
+            font-size: 13px;
+            color: #777;
+            margin-bottom: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px 15px;
         }
 
         .issue-description {
             color: #555;
-            line-height: 1.5;
+            line-height: 1.6;
+            font-size: 15px;
         }
 
         .stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 20px;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
         }
 
         .stat-card {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
-            padding: 20px;
-            border-radius: 12px;
+            padding: 25px;
+            border-radius: 15px;
             text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
         }
 
         .stat-number {
-            font-size: 2rem;
+            font-size: 2.5rem;
             font-weight: bold;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
+            line-height: 1;
         }
 
         .stat-label {
-            font-size: 14px;
+            font-size: 15px;
             opacity: 0.9;
+            letter-spacing: 0.5px;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 50px;
+            color: #888;
+            font-style: italic;
+            font-size: 1.1rem;
         }
 
         .file-input {
             display: none;
         }
-
-        .no-issues {
-            text-align: center;
-            padding: 40px;
-            color: #666;
-            font-style: italic;
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
         }
 
-        .loading {
-            text-align: center;
-            padding: 20px;
-            color: #666;
-        }
-
-        .error-message {
-            background: #ffebee;
-            color: #c62828;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            border: 1px solid #ffcdd2;
-        }
-
-        .success-message {
-            background: #e8f5e8;
-            color: #2e7d32;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            border: 1px solid #c8e6c9;
-        }
-
-        .share-section {
-            background: #e3f2fd;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-
-        .share-section h4 {
-            color: #1976d2;
-            margin-bottom: 10px;
-        }
-
-        .share-link {
-            word-break: break-all;
+        .modal-content {
             background: white;
-            padding: 8px;
-            border-radius: 4px;
-            border: 1px solid #ddd;
-            font-family: monospace;
-            font-size: 12px;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            animation: modalPop 0.3s ease-out;
         }
 
-        .setup-instructions {
-            background: #fff3e0;
-            padding: 15px;
-            border-radius: 8px;
+        @keyframes modalPop {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-content h4 {
+            font-size: 1.5rem;
             margin-bottom: 20px;
+            color: #333;
         }
 
-        .setup-instructions h4 {
-            color: #f57c00;
-            margin-bottom: 10px;
+        .modal-content p {
+            margin-bottom: 25px;
+            color: #555;
+            line-height: 1.6;
         }
 
-        .setup-instructions code {
-            background: #f5f5f5;
-            padding: 2px 4px;
-            border-radius: 4px;
-            font-family: monospace;
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .modal-buttons button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: background-color 0.2s ease;
+        }
+
+        .modal-confirm {
+            background-color: #d32f2f;
+            color: white;
+        }
+
+        .modal-confirm:hover {
+            background-color: #b71c1c;
+        }
+
+        .modal-cancel {
+            background-color: #e0e0e0;
+            color: #555;
+        }
+
+        .modal-cancel:hover {
+            background-color: #c0c0c0;
+        }
+
+        .modal-ok {
+            background-color: #667eea;
+            color: white;
+        }
+
+        .modal-ok:hover {
+            background-color: #516be1;
+        }
+        
+        .user-id-display {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 15px;
+            border-radius: 10px;
+            color: white;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            margin-top: 10px;
+            align-self: flex-end; /* Align to the right in the header */
+        }
+        
+        .user-id-copy-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: background-color 0.2s ease;
+        }
+        
+        .user-id-copy-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .container {
+                padding: 15px;
+            }
+            .header h1 {
+                font-size: 2.2rem;
+            }
+            .tab {
+                font-size: 16px;
+                padding: 12px 18px;
+            }
+            .tab-content {
+                padding: 25px;
+            }
+            .spreadsheet th {
+                font-size: 12px;
+            }
+            .spreadsheet input {
+                height: 35px;
+                padding: 6px 10px;
+            }
+            .issue-title {
+                font-size: 16px;
+            }
+            .stat-number {
+                font-size: 2rem;
+            }
         }
 
         @media (max-width: 768px) {
-            .container {
+            body {
                 padding: 10px;
             }
-            
-            .form-row {
+            .container {
+                border-radius: 15px;
+                padding: 15px;
+            }
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            .header p {
+                font-size: 1rem;
+            }
+            .config-form, .form-row {
                 grid-template-columns: 1fr;
             }
-            
             .excel-controls {
                 flex-direction: column;
                 align-items: stretch;
             }
-            
             .btn {
                 text-align: center;
+                width: 100%;
             }
+            .tabs {
+                flex-direction: column;
+                gap: 5px;
+            }
+            .tab {
+                width: 100%;
+            }
+            .spreadsheet-container {
+                max-height: 400px; /* Adjust for smaller screens */
+            }
+            .issue-form {
+                padding: 20px;
+            }
+            .issues-list {
+                padding: 10px;
+            }
+            .issue-item {
+                padding: 15px;
+            }
+            .stat-card {
+                padding: 20px;
+            }
+        }
 
-            .config-form {
-                grid-template-columns: 1fr;
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            .tab {
+                font-size: 14px;
+                padding: 10px;
+            }
+            .btn {
+                font-size: 13px;
+                padding: 10px;
+            }
+            .form-group input, .form-group select, .form-group textarea {
+                font-size: 13px;
+                padding: 10px;
+            }
+            .issue-title {
+                font-size: 15px;
+            }
+            .issue-description {
+                font-size: 14px;
+            }
+            .user-id-display {
+                font-size: 0.8rem;
+                padding: 6px 10px;
+            }
+            .user-id-copy-btn {
+                padding: 3px 8px;
+                font-size: 0.7rem;
             }
         }
     </style>
@@ -448,18 +735,81 @@
         <div class="header">
             <h1>📊 Excel & Issue Tracker</h1>
             <p>Manage your spreadsheets and track issues with cloud sync</p>
+            <div id="user-id-display" class="user-id-display hidden">
+                <span>Your ID: <strong id="current-user-id"></strong></span>
+                <button class="user-id-copy-btn" id="copy-user-id-btn">Copy</button>
+            </div>
         </div>
 
         <!-- Database Configuration -->
         <div class="config-section">
-            <h3>🔗 Database Configuration</h3>
+            <h3>🔗 Database Connection</h3>
             <div id="connection-status" class="status-indicator status-disconnected">
                 Not Connected
             </div>
             
-            <div class="setup-instructions">
-                <h4>📋 Demo Mode</h4>
-                <p>This is a demo version that stores data in your browser. For cloud sync, you would need to connect to a Supabase database.</p>
+            <div id="loading-config" class="loading-overlay hidden">
+                <div class="spinner"></div>
+                <p>Connecting to Supabase...</p>
+            </div>
+
+            <div class="setup-instructions info-message">
+                <h4>📋 Setup Instructions:</h4>
+                <p>1. Go to <a href="https://supabase.com/" target="_blank" style="color:#1976d2; text-decoration: underline;">Supabase.com</a> and create a new project.</p>
+                <p>2. In your project, navigate to "SQL Editor" and run the following SQL to create tables:</p>
+                <pre style="background:#f0f0f0; padding:10px; border-radius:5px; margin-top:10px; font-size:0.9em; overflow-x:auto;">
+<code style="font-family: monospace;">
+CREATE TABLE excel_sheets (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id TEXT NOT NULL,
+  data JSONB,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE TABLE issues (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id TEXT NOT NULL,
+  title TEXT NOT NULL,
+  description TEXT,
+  priority TEXT,
+  status TEXT NOT NULL,
+  assignee TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Enable Row Level Security (RLS) for both tables
+ALTER TABLE excel_sheets ENABLE ROW LEVEL SECURITY;
+ALTER TABLE issues ENABLE ROW LEVEL SECURITY;
+
+-- Create policies to allow users to access their own data
+CREATE POLICY "Users can view their own excel sheets" ON excel_sheets
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert their own excel sheets" ON excel_sheets
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own excel sheets" ON excel_sheets
+  FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete their own excel sheets" ON excel_sheets
+  FOR DELETE USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can view their own issues" ON issues
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert their own issues" ON issues
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own issues" ON issues
+  FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete their own issues" ON issues
+  FOR DELETE USING (auth.uid() = user_id);
+</code>
+                </pre>
+                <p>3. Go to "Settings" -> "API" and find your "Project URL" and "anon public" "Project API Key".</p>
+                <p>4. Enter them below and click "Connect".</p>
+                <p style="margin-top:10px;"><strong>Note:</strong> If you don't connect, the app will run in <strong>Demo Mode</strong>, storing data only in your browser's local storage.</p>
             </div>
             
             <div class="config-form">
@@ -472,8 +822,8 @@
                     <input type="text" id="supabase-key" placeholder="Your anon key">
                 </div>
                 <div class="form-group">
-                    <button class="btn btn-primary" onclick="connectDatabase()">Connect</button>
-                    <button class="btn btn-secondary" onclick="enableDemoMode()">Demo Mode</button>
+                    <button class="btn btn-primary" id="connect-db-btn">Connect</button>
+                    <button class="btn btn-secondary" id="demo-mode-btn">Demo Mode</button>
                 </div>
             </div>
             
@@ -482,23 +832,28 @@
         </div>
 
         <div class="tabs">
-            <button class="tab active" onclick="switchTab('excel')">📈 Excel Sheet</button>
-            <button class="tab" onclick="switchTab('issues')">🐛 Issue Tracker</button>
+            <button class="tab active" id="excel-tab-btn">📈 Excel Sheet</button>
+            <button class="tab" id="issues-tab-btn">🐛 Issue Tracker</button>
         </div>
 
         <!-- Excel Tab -->
         <div id="excel-tab" class="tab-content">
+            <div id="excel-loading" class="loading-overlay hidden">
+                <div class="spinner"></div>
+                <p>Loading Excel data...</p>
+            </div>
             <div class="excel-controls">
-                <button class="btn btn-primary" onclick="addRow()" id="add-row-btn">+ Add Row</button>
-                <button class="btn btn-primary" onclick="addColumn()" id="add-col-btn">+ Add Column</button>
-                <button class="btn btn-success" onclick="exportToCSV()">📥 Export CSV</button>
-                <button class="btn btn-secondary" onclick="clearAll()" id="clear-btn">🗑️ Clear All</button>
-                <input type="file" id="csvFile" class="file-input" accept=".csv" onchange="importCSV(event)">
-                <button class="btn btn-secondary" onclick="document.getElementById('csvFile').click()">📤 Import CSV</button>
-                <button class="btn btn-primary" onclick="saveData()" id="save-btn">💾 Save</button>
+                <button class="btn btn-primary" id="add-row-btn">➕ Add Row</button>
+                <button class="btn btn-primary" id="add-col-btn">➕ Add Column</button>
+                <button class="btn btn-success" id="export-csv-btn">📥 Export CSV</button>
+                <button class="btn btn-secondary" id="clear-btn">🗑️ Clear All</button>
+                <input type="file" id="csvFile" class="file-input" accept=".csv">
+                <button class="btn btn-secondary" id="import-csv-btn">📤 Import CSV</button>
+                <button class="btn btn-primary" id="save-btn">💾 Save</button>
             </div>
             
             <div id="excel-error" class="error-message hidden"></div>
+            <div id="excel-success" class="success-message hidden"></div>
             
             <div class="spreadsheet-container">
                 <table class="spreadsheet" id="spreadsheet">
@@ -519,6 +874,10 @@
 
         <!-- Issues Tab -->
         <div id="issues-tab" class="tab-content hidden">
+            <div id="issues-loading" class="loading-overlay hidden">
+                <div class="spinner"></div>
+                <p>Loading Issues...</p>
+            </div>
             <div class="stats">
                 <div class="stat-card">
                     <div class="stat-number" id="total-issues">0</div>
@@ -537,7 +896,7 @@
             <div class="issue-form">
                 <h3 style="margin-bottom: 20px; color: #333;">➕ Add New Issue</h3>
                 <div id="issues-error" class="error-message hidden"></div>
-                <form onsubmit="addIssue(event)">
+                <form id="issue-form">
                     <div class="form-row">
                         <div class="form-group">
                             <label for="issue-title">Title *</label>
@@ -579,47 +938,157 @@
             </div>
 
             <div class="issues-list" id="issues-list">
-                <div class="no-issues">No issues found. Add your first issue above!</div>
+                <div class="no-data">No issues found. Add your first issue above!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Modals -->
+    <div id="alert-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h4 id="alert-modal-title"></h4>
+            <p id="alert-modal-message"></p>
+            <div class="modal-buttons">
+                <button class="modal-ok" id="alert-modal-ok">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirm-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h4 id="confirm-modal-title"></h4>
+            <p id="confirm-modal-message"></p>
+            <div class="modal-buttons">
+                <button class="modal-confirm" id="confirm-modal-yes">Yes</button>
+                <button class="modal-cancel" id="confirm-modal-no">No</button>
             </div>
         </div>
     </div>
 
     <script>
-        // Global variables
-        let spreadsheetData = [];
-        let issues = [];
-        let isConnected = false;
+        // Global variables for data and Supabase client
+        let supabaseClient = null;
+        let currentUserId = null;
+        let isConnectedToSupabase = false;
         let isDemoMode = false;
 
-        // Initialize on page load
-        window.addEventListener('load', () => {
-            initEmptySpreadsheet();
-            renderSpreadsheet();
-            loadFromStorage();
-        });
+        let spreadsheetData = []; // Main data for the Excel sheet
+        let issues = [];          // Main data for issues
 
-        // Enable demo mode
-        function enableDemoMode() {
-            isDemoMode = true;
-            isConnected = true;
-            updateConnectionStatus(true, 'Demo Mode Active');
-            showSuccess('config-success', 'Demo mode enabled! Data will be stored locally in your browser.');
-            loadFromStorage();
+        // --- Utility Functions for UI Messages and Modals ---
+        function showMessage(elementId, message, type = 'info') {
+            const el = document.getElementById(elementId);
+            el.textContent = message;
+            el.className = `${type}-message`;
+            el.classList.remove('hidden');
+            setTimeout(() => {
+                el.classList.add('hidden');
+            }, 5000);
         }
 
-        // Connect to database (placeholder for real implementation)
+        function hideMessage(elementId) {
+            document.getElementById(elementId).classList.add('hidden');
+        }
+
+        function showAlert(title, message) {
+            return new Promise(resolve => {
+                const modal = document.getElementById('alert-modal');
+                document.getElementById('alert-modal-title').textContent = title;
+                document.getElementById('alert-modal-message').textContent = message;
+                document.getElementById('alert-modal-ok').onclick = () => {
+                    modal.classList.add('hidden');
+                    resolve();
+                };
+                modal.classList.remove('hidden');
+            });
+        }
+
+        function showConfirm(title, message) {
+            return new Promise(resolve => {
+                const modal = document.getElementById('confirm-modal');
+                document.getElementById('confirm-modal-title').textContent = title;
+                document.getElementById('confirm-modal-message').textContent = message;
+                document.getElementById('confirm-modal-yes').onclick = () => {
+                    modal.classList.add('hidden');
+                    resolve(true);
+                };
+                document.getElementById('confirm-modal-no').onclick = () => {
+                    modal.classList.add('hidden');
+                    resolve(false);
+                };
+                modal.classList.remove('hidden');
+            });
+        }
+
+        function showLoading(elementId) {
+            document.getElementById(elementId).classList.remove('hidden');
+        }
+
+        function hideLoading(elementId) {
+            document.getElementById(elementId).classList.add('hidden');
+        }
+
+        // --- Supabase and Database Connection ---
+        async function initializeSupabase(url, key) {
+            try {
+                if (!url || !key) {
+                    throw new Error("Supabase URL and Key are required.");
+                }
+                supabaseClient = Supabase.createClient(url, key);
+                
+                // Sign in anonymously for basic access
+                const { data, error } = await supabaseClient.auth.signInAnonymously();
+                if (error) throw error;
+
+                currentUserId = data.user.id;
+                isConnectedToSupabase = true;
+                isDemoMode = false;
+                updateConnectionStatus(true, `Connected to Supabase. User: ${currentUserId.substring(0, 8)}...`);
+                showMessage('config-success', 'Successfully connected to Supabase and signed in!');
+                document.getElementById('user-id-display').classList.remove('hidden');
+                document.getElementById('current-user-id').textContent = currentUserId;
+
+                await loadDataFromSupabase(); // Load data after successful connection
+            } catch (error) {
+                console.error('Supabase connection error:', error.message);
+                showMessage('config-error', `Failed to connect or sign in: ${error.message}`, 'error');
+                updateConnectionStatus(false);
+                isConnectedToSupabase = false;
+                isDemoMode = false; // Reset to ensure full demo mode if connection fails
+                await enableDemoMode(); // Fallback to demo mode if real connection fails
+            } finally {
+                hideLoading('loading-config');
+            }
+        }
+
         async function connectDatabase() {
+            hideMessage('config-error');
+            hideMessage('config-success');
+            showLoading('loading-config');
+
             const url = document.getElementById('supabase-url').value.trim();
             const key = document.getElementById('supabase-key').value.trim();
             
-            if (!url || !key) {
-                showError('config-error', 'Please enter both Supabase URL and key');
-                return;
+            if (url && key) {
+                await initializeSupabase(url, key);
+            } else {
+                await showAlert('Connection Required', 'Please enter both Supabase URL and Anon Key to connect. Otherwise, click "Demo Mode".');
+                hideLoading('loading-config');
             }
+        }
 
-            // For demo purposes, we'll just enable demo mode
-            showError('config-error', 'Real database connection not implemented in this demo. Using Demo Mode instead.');
-            enableDemoMode();
+        async function enableDemoMode() {
+            hideMessage('config-error');
+            hideMessage('config-success');
+            isDemoMode = true;
+            isConnectedToSupabase = false; // Ensure this is false for demo mode
+            currentUserId = localStorage.getItem('demoUserId') || crypto.randomUUID();
+            localStorage.setItem('demoUserId', currentUserId);
+            updateConnectionStatus(true, `Demo Mode Active. Your local ID: ${currentUserId.substring(0, 8)}...`);
+            showMessage('config-success', 'Demo mode enabled! Data will be stored locally in your browser.', 'success');
+            document.getElementById('user-id-display').classList.remove('hidden');
+            document.getElementById('current-user-id').textContent = currentUserId;
+            await loadDataFromLocalStorage();
         }
 
         function updateConnectionStatus(connected, text = null) {
@@ -632,57 +1101,282 @@
                 status.className = 'status-indicator status-disconnected';
             }
         }
-
-        function showError(elementId, message) {
-            const errorEl = document.getElementById(elementId);
-            errorEl.innerHTML = message.replace(/\n/g, '<br>');
-            errorEl.classList.remove('hidden');
+        
+        function copyUserId() {
+            if (currentUserId) {
+                const textArea = document.createElement('textarea');
+                textArea.value = currentUserId;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    showAlert('Copied!', 'User ID copied to clipboard: ' + currentUserId);
+                } catch (err) {
+                    console.error('Failed to copy text:', err);
+                    showAlert('Copy Failed', 'Could not copy text to clipboard.');
+                }
+                document.body.removeChild(textArea);
+            }
         }
 
-        function hideError(elementId) {
-            const errorEl = document.getElementById(elementId);
-            errorEl.classList.add('hidden');
+        // --- Data Persistence (Supabase vs Local Storage) ---
+        async function saveData() {
+            if (!currentUserId) {
+                await showAlert('Save Error', 'Cannot save data without a valid user ID.');
+                return;
+            }
+
+            if (isDemoMode) {
+                saveDataToLocalStorage();
+            } else if (isConnectedToSupabase && supabaseClient) {
+                await saveDataToSupabase();
+            } else {
+                await showAlert('Save Error', 'Not connected to Supabase or in demo mode. Please connect or enable demo mode.');
+            }
         }
 
-        function showSuccess(elementId, message) {
-            const successEl = document.getElementById(elementId);
-            successEl.textContent = message;
-            successEl.classList.remove('hidden');
-            setTimeout(() => {
-                successEl.classList.add('hidden');
-            }, 5000);
+        async function loadFromStorage() {
+            if (!currentUserId) { // This handles initial load before auth is ready for Supabase
+                 if (localStorage.getItem('demoUserId')) {
+                    isDemoMode = true;
+                    currentUserId = localStorage.getItem('demoUserId');
+                    updateConnectionStatus(true, `Demo Mode Active. Your local ID: ${currentUserId.substring(0, 8)}...`);
+                    document.getElementById('user-id-display').classList.remove('hidden');
+                    document.getElementById('current-user-id').textContent = currentUserId;
+                    await loadDataFromLocalStorage();
+                } else {
+                    // Start in disconnected state and let user choose
+                    updateConnectionStatus(false, 'Not Connected');
+                    document.getElementById('user-id-display').classList.add('hidden');
+                }
+                return;
+            }
+
+            if (isDemoMode) {
+                await loadDataFromLocalStorage();
+            } else if (isConnectedToSupabase && supabaseClient) {
+                await loadDataFromSupabase();
+            } else {
+                 // If not connected and not in demo mode, display appropriate message
+                 updateConnectionStatus(false, 'Not Connected');
+                 document.getElementById('user-id-display').classList.add('hidden');
+            }
         }
 
-        // Tab switching
+        // Local Storage Implementation (for Demo Mode)
+        function saveDataToLocalStorage() {
+            try {
+                localStorage.setItem(`spreadsheet_data_${currentUserId}`, JSON.stringify(spreadsheetData));
+                localStorage.setItem(`issues_data_${currentUserId}`, JSON.stringify(issues));
+                showMessage('excel-success', 'Excel and Issues data saved to local storage!', 'success');
+            } catch (e) {
+                console.error('Error saving to local storage:', e);
+                showMessage('excel-error', 'Failed to save data to local storage.', 'error');
+            }
+        }
+
+        function loadDataFromLocalStorage() {
+            try {
+                const savedSpreadsheet = localStorage.getItem(`spreadsheet_data_${currentUserId}`);
+                if (savedSpreadsheet) {
+                    spreadsheetData = JSON.parse(savedSpreadsheet);
+                } else {
+                    initEmptySpreadsheet();
+                }
+
+                const savedIssues = localStorage.getItem(`issues_data_${currentUserId}`);
+                if (savedIssues) {
+                    issues = JSON.parse(savedIssues);
+                } else {
+                    issues = [];
+                }
+                renderSpreadsheet();
+                renderIssues();
+                updateStats();
+                showMessage('config-success', 'Data loaded from local storage!', 'success');
+            } catch (e) {
+                console.error('Error loading from local storage:', e);
+                showMessage('config-error', 'Failed to load data from local storage.', 'error');
+                initEmptySpreadsheet(); // Ensure spreadsheet is initialized even if load fails
+                issues = [];
+                renderSpreadsheet();
+                renderIssues();
+                updateStats();
+            }
+        }
+
+        // Supabase Implementation
+        async function saveDataToSupabase() {
+            showLoading('excel-loading'); // Show loading for excel save
+            hideMessage('excel-error');
+            hideMessage('excel-success');
+            try {
+                // Save Excel Sheet Data
+                const { data: existingExcel, error: fetchExcelError } = await supabaseClient
+                    .from('excel_sheets')
+                    .select('id')
+                    .eq('user_id', currentUserId)
+                    .single();
+
+                if (fetchExcelError && fetchExcelError.code !== 'PGRST116') { // PGRST116 means no rows found
+                    throw fetchExcelError;
+                }
+
+                if (existingExcel) {
+                    // Update existing row
+                    const { error } = await supabaseClient
+                        .from('excel_sheets')
+                        .update({ data: spreadsheetData, updated_at: new Date().toISOString() })
+                        .eq('id', existingExcel.id);
+                    if (error) throw error;
+                } else {
+                    // Insert new row
+                    const { error } = await supabaseClient
+                        .from('excel_sheets')
+                        .insert({ user_id: currentUserId, data: spreadsheetData });
+                    if (error) throw error;
+                }
+
+                // Issues are added/fetched in real-time by onSnapshot listener, no need to "save" all issues here explicitly
+
+                showMessage('excel-success', 'Excel and Issues data synchronized with Supabase!', 'success');
+            } catch (error) {
+                console.error('Error saving to Supabase:', error.message);
+                showMessage('excel-error', `Failed to save data to Supabase: ${error.message}`, 'error');
+            } finally {
+                hideLoading('excel-loading');
+            }
+        }
+
+        async function loadDataFromSupabase() {
+            showLoading('excel-loading'); // Show loading for excel
+            showLoading('issues-loading'); // Show loading for issues
+            hideMessage('excel-error');
+            hideMessage('issues-error');
+
+            try {
+                // Load Excel Sheet Data
+                const { data: excelDataResponse, error: excelError } = await supabaseClient
+                    .from('excel_sheets')
+                    .select('data')
+                    .eq('user_id', currentUserId)
+                    .single();
+
+                if (excelError && excelError.code !== 'PGRST116') { // PGRST116 means no rows found
+                    throw excelError;
+                }
+
+                if (excelDataResponse && excelDataResponse.data) {
+                    spreadsheetData = excelDataResponse.data;
+                } else {
+                    initEmptySpreadsheet(); // Initialize if no data found
+                }
+                renderSpreadsheet();
+
+                // Set up real-time listener for Issues (already done in setupSupabaseListeners)
+                // This will keep 'issues' array updated automatically
+                
+                showMessage('config-success', 'Data loaded from Supabase!', 'success');
+            } catch (error) {
+                console.error('Error loading from Supabase:', error.message);
+                showMessage('config-error', `Failed to load data from Supabase: ${error.message}`, 'error');
+                initEmptySpreadsheet();
+                issues = [];
+                renderSpreadsheet();
+                renderIssues();
+                updateStats();
+            } finally {
+                hideLoading('excel-loading');
+                hideLoading('issues-loading');
+            }
+        }
+
+        // Supabase Real-time Listener for Issues
+        function setupSupabaseListeners() {
+            if (!supabaseClient) {
+                console.warn("Supabase client not initialized, skipping real-time listeners.");
+                return;
+            }
+
+            // Unsubscribe existing listeners if any
+            supabaseClient.removeAllChannels();
+
+            supabaseClient
+                .channel('public:issues')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'issues', filter: `user_id=eq.${currentUserId}` }, payload => {
+                    console.log('Change received!', payload);
+                    // Re-fetch all issues or update locally
+                    fetchIssuesFromSupabase(); 
+                })
+                .subscribe((status) => {
+                    if (status === 'SUBSCRIBED') {
+                        console.log('Subscribed to issues changes');
+                        fetchIssuesFromSupabase(); // Initial fetch when subscribed
+                    } else if (status === 'CHANNEL_ERROR') {
+                        console.error('Supabase channel error. Disconnected from real-time updates.');
+                        showMessage('issues-error', 'Real-time updates disconnected. Check your Supabase connection.', 'error');
+                    }
+                });
+        }
+        
+        async function fetchIssuesFromSupabase() {
+            if (!supabaseClient || !currentUserId) return;
+            showLoading('issues-loading');
+            hideMessage('issues-error');
+            try {
+                const { data, error } = await supabaseClient
+                    .from('issues')
+                    .select('*')
+                    .eq('user_id', currentUserId)
+                    .order('created_at', { ascending: false }); // Sort by latest first
+
+                if (error) throw error;
+                issues = data || [];
+                renderIssues();
+                updateStats();
+            } catch (error) {
+                console.error('Error fetching issues from Supabase:', error.message);
+                showMessage('issues-error', `Failed to fetch issues: ${error.message}`, 'error');
+            } finally {
+                hideLoading('issues-loading');
+            }
+        }
+
+
+        // --- Tab Switching ---
         function switchTab(tabName) {
-            // Update tab buttons
             document.querySelectorAll('.tab').forEach(tab => {
                 tab.classList.remove('active');
             });
-            event.target.classList.add('active');
+            document.getElementById(tabName + '-tab-btn').classList.add('active');
             
-            // Update tab content
             document.querySelectorAll('.tab-content').forEach(content => {
                 content.classList.add('hidden');
             });
             document.getElementById(tabName + '-tab').classList.remove('hidden');
         }
 
-        // Initialize empty spreadsheet
-        function initEmptySpreadsheet() {
-            const rows = 20;
-            const cols = 5;
-            
+        // --- Excel Sheet Logic ---
+        function initEmptySpreadsheet(rows = 20, cols = 5) {
             spreadsheetData = [];
             for (let i = 0; i < rows; i++) {
                 spreadsheetData[i] = new Array(cols).fill('');
             }
         }
 
-        // Render spreadsheet
         function renderSpreadsheet() {
             const tbody = document.getElementById('spreadsheet-body');
             tbody.innerHTML = '';
+
+            // Update header columns in case new columns were added
+            const headerRow = document.getElementById('header-row');
+            headerRow.innerHTML = ''; // Clear existing headers
+            const numCols = spreadsheetData[0] ? spreadsheetData[0].length : 5;
+            for (let i = 0; i < numCols; i++) {
+                const th = document.createElement('th');
+                th.textContent = String.fromCharCode(65 + i); // A, B, C...
+                headerRow.appendChild(th);
+            }
 
             spreadsheetData.forEach((row, rowIndex) => {
                 const tr = document.createElement('tr');
@@ -691,7 +1385,7 @@
                     const input = document.createElement('input');
                     input.type = 'text';
                     input.value = cell;
-                    input.onchange = () => updateCell(rowIndex, colIndex, input.value);
+                    input.onchange = (e) => updateCell(rowIndex, colIndex, e.target.value);
                     td.appendChild(input);
                     tr.appendChild(td);
                 });
@@ -699,74 +1393,92 @@
             });
         }
 
-        // Update cell value
         function updateCell(row, col, value) {
             if (spreadsheetData[row]) {
                 spreadsheetData[row][col] = value;
-                saveToStorage();
+                // Defer saving to Supabase until 'Save' button is clicked for performance
+                // In demo mode, save immediately
+                if (isDemoMode) {
+                    saveDataToLocalStorage();
+                }
             }
         }
 
-        // Add new row
         function addRow() {
             const cols = spreadsheetData[0] ? spreadsheetData[0].length : 5;
             spreadsheetData.push(new Array(cols).fill(''));
             renderSpreadsheet();
-            saveToStorage();
+            if (isConnectedToSupabase || isDemoMode) {
+                saveData(); // Save changes after adding row
+            }
         }
 
-        // Add new column
         function addColumn() {
-            const colIndex = spreadsheetData[0] ? spreadsheetData[0].length : 0;
-            const colLetter = String.fromCharCode(65 + colIndex);
-            
-            // Add header
-            const headerRow = document.getElementById('header-row');
-            const th = document.createElement('th');
-            th.textContent = colLetter;
-            headerRow.appendChild(th);
-            
             // Add column to data
             spreadsheetData.forEach(row => {
                 row.push('');
             });
-            
-            renderSpreadsheet();
-            saveToStorage();
-        }
-
-        // Clear all data
-        function clearAll() {
-            if (confirm('Are you sure you want to clear all spreadsheet data?')) {
-                initEmptySpreadsheet();
-                renderSpreadsheet();
-                saveToStorage();
+            renderSpreadsheet(); // Rerender to update headers and new cells
+            if (isConnectedToSupabase || isDemoMode) {
+                saveData(); // Save changes after adding column
             }
         }
 
-        // Export to CSV
+        async function clearAll() {
+            const confirmed = await showConfirm('Clear Spreadsheet', 'Are you sure you want to clear all spreadsheet data? This cannot be undone.');
+            if (confirmed) {
+                initEmptySpreadsheet();
+                renderSpreadsheet();
+                if (!currentUserId) {
+                    showAlert('Error', 'Cannot clear persistent data without a user ID.');
+                    return;
+                }
+
+                if (isDemoMode) {
+                    saveDataToLocalStorage();
+                } else if (isConnectedToSupabase && supabaseClient) {
+                    showLoading('excel-loading');
+                    try {
+                        const { error } = await supabaseClient
+                            .from('excel_sheets')
+                            .delete()
+                            .eq('user_id', currentUserId);
+                        if (error) throw error;
+                        showMessage('excel-success', 'Spreadsheet data cleared from Supabase.', 'success');
+                    } catch (error) {
+                        console.error('Error clearing Supabase excel data:', error.message);
+                        showMessage('excel-error', `Failed to clear Supabase data: ${error.message}`, 'error');
+                    } finally {
+                        hideLoading('excel-loading');
+                    }
+                }
+            }
+        }
+
         function exportToCSV() {
             let csvContent = '';
             spreadsheetData.forEach(row => {
-                csvContent += row.map(cell => `"${cell.replace(/"/g, '""')}"`).join(',') + '\n';
+                csvContent += row.map(cell => `"${(cell || '').toString().replace(/"/g, '""')}"`).join(',') + '\n';
             });
             
-            const blob = new Blob([csvContent], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
             a.download = 'spreadsheet.csv';
+            document.body.appendChild(a);
             a.click();
-            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showMessage('excel-success', 'Spreadsheet exported as CSV!', 'success');
         }
 
-        // Import CSV
         function importCSV(event) {
             const file = event.target.files[0];
             if (!file) return;
 
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = async function(e) {
                 const csv = e.target.result;
                 const rows = csv.split('\n').map(row => {
                     const cells = [];
@@ -775,10 +1487,8 @@
                     
                     for (let i = 0; i < row.length; i++) {
                         const char = row[i];
-                        if (char === '"' && (i === 0 || row[i-1] === ',')) {
-                            inQuotes = true;
-                        } else if (char === '"' && inQuotes && (i === row.length - 1 || row[i+1] === ',')) {
-                            inQuotes = false;
+                        if (char === '"' && (i === 0 || row[i-1] === ',' || row[i-1] === '\n')) { // Handle quoted cells
+                            inQuotes = !inQuotes;
                         } else if (char === ',' && !inQuotes) {
                             cells.push(currentCell);
                             currentCell = '';
@@ -786,31 +1496,53 @@
                             currentCell += char;
                         }
                     }
-                    cells.push(currentCell);
+                    cells.push(currentCell.replace(/"/g, '')); // Remove extra quotes at the end
                     return cells;
-                });
+                }).filter(row => row.some(cell => cell.trim() !== '')); // Filter out empty rows
 
-                spreadsheetData = rows.filter(row => row.some(cell => cell.trim() !== ''));
-                
-                // Ensure minimum dimensions
-                if (spreadsheetData.length < 20) {
-                    const rowsToAdd = 20 - spreadsheetData.length;
-                    const cols = Math.max(5, Math.max(...spreadsheetData.map(row => row.length)));
-                    for (let i = 0; i < rowsToAdd; i++) {
-                        spreadsheetData.push(new Array(cols).fill(''));
-                    }
+                if (rows.length === 0) {
+                    showAlert('Import Error', 'CSV file is empty or invalid.');
+                    return;
                 }
 
+                // Adjust columns to fit imported data
+                let maxCols = 0;
+                rows.forEach(row => {
+                    if (row.length > maxCols) maxCols = row.length;
+                });
+
+                spreadsheetData = rows;
+                // Ensure minimum rows/cols
+                const minRows = 20;
+                const minCols = Math.max(5, maxCols); // Ensure at least 5 cols
+
+                while (spreadsheetData.length < minRows) {
+                    spreadsheetData.push(new Array(minCols).fill(''));
+                }
+                spreadsheetData.forEach(row => {
+                    while (row.length < minCols) {
+                        row.push('');
+                    }
+                });
+
                 renderSpreadsheet();
-                saveToStorage();
+                await saveData(); // Save imported data
+                showMessage('excel-success', 'CSV data imported successfully!', 'success');
+                document.getElementById('csvFile').value = ''; // Clear file input
             };
             reader.readAsText(file);
         }
 
-        // Add issue
-        function addIssue(event) {
+        // --- Issue Tracking Logic ---
+        async function addIssue(event) {
             event.preventDefault();
+            hideMessage('issues-error');
             
+            if (!currentUserId) {
+                showAlert('Authentication Required', 'Please connect to Supabase or enable Demo Mode to add issues.');
+                return;
+            }
+
             const title = document.getElementById('issue-title').value.trim();
             const description = document.getElementById('issue-description').value.trim();
             const priority = document.getElementById('issue-priority').value;
@@ -818,21 +1550,45 @@
             const assignee = document.getElementById('issue-assignee').value.trim();
             
             if (!title) {
-                showError('issues-error', 'Title is required');
+                showMessage('issues-error', 'Issue Title is required.', 'error');
                 return;
             }
 
-            const issue = {
-                id: Date.now(),
+            const newIssue = {
                 title,
                 description,
                 priority,
                 status,
-                assignee,
-                created_at: new Date().toISOString()
+                assignee: assignee || 'Unassigned',
+                created_at: new Date().toISOString(), // Use ISO string for consistent date
+                user_id: currentUserId // Link issue to the current user
             };
 
-            issues.unshift(issue);
+            if (isDemoMode) {
+                newIssue.id = Date.now().toString(); // Simple ID for demo mode
+                issues.unshift(newIssue);
+                saveDataToLocalStorage();
+                renderIssues();
+                updateStats();
+                showMessage('issues-success', 'Issue added to local storage!', 'success');
+            } else if (isConnectedToSupabase && supabaseClient) {
+                showLoading('issues-loading');
+                try {
+                    const { error } = await supabaseClient
+                        .from('issues')
+                        .insert([newIssue]);
+                    if (error) throw error;
+                    showMessage('issues-success', 'Issue added to Supabase!', 'success');
+                    // Data will be re-rendered by the real-time listener
+                } catch (error) {
+                    console.error('Error adding issue to Supabase:', error.message);
+                    showMessage('issues-error', `Failed to add issue: ${error.message}`, 'error');
+                } finally {
+                    hideLoading('issues-loading');
+                }
+            } else {
+                showAlert('Save Error', 'Not connected to Supabase or in demo mode. Cannot add issue.');
+            }
             
             // Clear form
             document.getElementById('issue-title').value = '';
@@ -840,19 +1596,13 @@
             document.getElementById('issue-assignee').value = '';
             document.getElementById('issue-priority').value = 'Medium';
             document.getElementById('issue-status').value = 'Open';
-            
-            renderIssues();
-            updateStats();
-            saveToStorage();
-            hideError('issues-error');
         }
 
-        // Render issues
         function renderIssues() {
             const issuesList = document.getElementById('issues-list');
             
             if (issues.length === 0) {
-                issuesList.innerHTML = '<div class="no-issues">No issues found. Add your first issue above!</div>';
+                issuesList.innerHTML = '<div class="no-data">No issues found. Add your first issue above!</div>';
                 return;
             }
 
@@ -862,7 +1612,9 @@
                 issueDiv.className = 'issue-item';
                 
                 const statusClass = issue.status.toLowerCase().replace(' ', '-');
-                const date = new Date(issue.created_at).toLocaleDateString();
+                const date = new Date(issue.created_at).toLocaleDateString(undefined, {
+                    year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
                 
                 issueDiv.innerHTML = `
                     <div class="issue-header">
@@ -870,18 +1622,16 @@
                         <div class="issue-status status-${statusClass}">${issue.status}</div>
                     </div>
                     <div class="issue-meta">
-                        Priority: ${issue.priority} | 
-                        Assignee: ${issue.assignee || 'Unassigned'} | 
-                        Created: ${date}
+                        <span>Priority: <strong>${issue.priority}</strong></span>
+                        <span>Assignee: <strong>${issue.assignee || 'Unassigned'}</strong></span>
+                        <span>Created: ${date}</span>
                     </div>
                     <div class="issue-description">${issue.description || 'No description provided'}</div>
                 `;
-                
                 issuesList.appendChild(issueDiv);
             });
         }
 
-        // Update statistics
         function updateStats() {
             const total = issues.length;
             const open = issues.filter(issue => issue.status === 'Open').length;
@@ -892,45 +1642,58 @@
             document.getElementById('closed-issues').textContent = closed;
         }
 
-        // Save data to localStorage
-        function saveData() {
-            saveToStorage();
-            if (isDemoMode) {
-                showSuccess('config-success', 'Data saved to local storage!');
-            }
-        }
+        // --- Initialization on Page Load ---
+        window.addEventListener('load', async () => {
+            initEmptySpreadsheet();
+            renderSpreadsheet(); // Initial render of empty spreadsheet
 
-        function saveToStorage() {
-            if (isDemoMode) {
-                const data = {
-                    spreadsheet: spreadsheetData,
-                    issues: issues
-                };
-                localStorage.setItem('excelIssueTracker', JSON.stringify(data));
-            }
-        }
+            // Check if Supabase URL and Key are pre-filled (e.g., from an environment)
+            const savedUrl = localStorage.getItem('supabaseUrl');
+            const savedKey = localStorage.getItem('supabaseKey');
+            if (savedUrl) document.getElementById('supabase-url').value = savedUrl;
+            if (savedKey) document.getElementById('supabase-key').value = savedKey;
 
-        // Load data from localStorage
-        function loadFromStorage() {
-            if (isDemoMode) {
-                const saved = localStorage.getItem('excelIssueTracker');
-                if (saved) {
-                    try {
-                        const data = JSON.parse(saved);
-                        if (data.spreadsheet) {
-                            spreadsheetData = data.spreadsheet;
-                            renderSpreadsheet();
-                        }
-                        if (data.issues) {
-                            issues = data.issues;
-                            renderIssues();
-                            updateStats();
-                        }
-                    } catch (error) {
-                        console.error('Failed to load data:', error);
-                    }
+            // Try to connect to Supabase automatically if credentials exist, otherwise default to demo mode
+            if (savedUrl && savedKey) {
+                await initializeSupabase(savedUrl, savedKey);
+            } else {
+                await enableDemoMode(); // Start in demo mode by default
+            }
+
+            setupEventListeners();
+        });
+
+        // --- Setup All Event Listeners ---
+        function setupEventListeners() {
+            // Database connection buttons
+            document.getElementById('connect-db-btn').addEventListener('click', async () => {
+                const url = document.getElementById('supabase-url').value.trim();
+                const key = document.getElementById('supabase-key').value.trim();
+                localStorage.setItem('supabaseUrl', url);
+                localStorage.setItem('supabaseKey', key);
+                await connectDatabase();
+                if (isConnectedToSupabase) {
+                    setupSupabaseListeners(); // Only set up listeners if connection is successful
                 }
-            }
+            });
+            document.getElementById('demo-mode-btn').addEventListener('click', enableDemoMode);
+            document.getElementById('copy-user-id-btn').addEventListener('click', copyUserId);
+
+            // Tab buttons
+            document.getElementById('excel-tab-btn').addEventListener('click', () => switchTab('excel'));
+            document.getElementById('issues-tab-btn').addEventListener('click', () => switchTab('issues'));
+            
+            // Excel controls
+            document.getElementById('add-row-btn').addEventListener('click', addRow);
+            document.getElementById('add-col-btn').addEventListener('click', addColumn);
+            document.getElementById('export-csv-btn').addEventListener('click', exportToCSV);
+            document.getElementById('clear-btn').addEventListener('click', clearAll);
+            document.getElementById('import-csv-btn').addEventListener('click', () => document.getElementById('csvFile').click());
+            document.getElementById('save-btn').addEventListener('click', saveData);
+            document.getElementById('csvFile').addEventListener('change', importCSV);
+            
+            // Issue form
+            document.getElementById('issue-form').addEventListener('submit', addIssue);
         }
     </script>
 </body>
