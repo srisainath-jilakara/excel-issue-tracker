@@ -35,6 +35,26 @@
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
+        .config-section {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .config-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .config-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 10px;
+            align-items: end;
+        }
+
         .tabs {
             display: flex;
             margin-bottom: 20px;
@@ -81,6 +101,25 @@
             display: none;
         }
 
+        .status-indicator {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+
+        .status-connected {
+            background: #e8f5e8;
+            color: #388e3c;
+        }
+
+        .status-disconnected {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+
         /* Excel Tab Styles */
         .excel-controls {
             margin-bottom: 20px;
@@ -120,6 +159,12 @@
         .btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
         }
 
         .spreadsheet-container {
@@ -309,6 +354,43 @@
             font-style: italic;
         }
 
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ffcdd2;
+        }
+
+        .share-section {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .share-section h4 {
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+
+        .share-link {
+            word-break: break-all;
+            background: white;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            font-family: monospace;
+            font-size: 12px;
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 10px;
@@ -326,6 +408,10 @@
             .btn {
                 text-align: center;
             }
+
+            .config-form {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -333,7 +419,33 @@
     <div class="container">
         <div class="header">
             <h1>📊 Excel & Issue Tracker</h1>
-            <p>Manage your spreadsheets and track issues in one place</p>
+            <p>Manage your spreadsheets and track issues with cloud sync</p>
+        </div>
+
+        <!-- Database Configuration -->
+        <div class="config-section">
+            <h3>🔗 Database Configuration</h3>
+            <div id="connection-status" class="status-indicator status-disconnected">
+                Not Connected
+            </div>
+            <div class="config-form">
+                <div class="form-group">
+                    <label for="supabase-url">Supabase URL</label>
+                    <input type="url" id="supabase-url" placeholder="https://your-project.supabase.co">
+                </div>
+                <div class="form-group">
+                    <label for="supabase-key">Supabase Anon Key</label>
+                    <input type="text" id="supabase-key" placeholder="Your anon key">
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-primary" onclick="connectDatabase()">Connect</button>
+                </div>
+            </div>
+            <div class="share-section">
+                <h4>📋 Share Your Data</h4>
+                <p>Once connected, share this link to give others access to the same data:</p>
+                <div class="share-link" id="share-link">Connect to database first</div>
+            </div>
         </div>
 
         <div class="tabs">
@@ -344,13 +456,16 @@
         <!-- Excel Tab -->
         <div id="excel-tab" class="tab-content">
             <div class="excel-controls">
-                <button class="btn btn-primary" onclick="addRow()">+ Add Row</button>
-                <button class="btn btn-primary" onclick="addColumn()">+ Add Column</button>
+                <button class="btn btn-primary" onclick="addRow()" id="add-row-btn" disabled>+ Add Row</button>
+                <button class="btn btn-primary" onclick="addColumn()" id="add-col-btn" disabled>+ Add Column</button>
                 <button class="btn btn-success" onclick="exportToCSV()">📥 Export CSV</button>
-                <button class="btn btn-secondary" onclick="clearAll()">🗑️ Clear All</button>
+                <button class="btn btn-secondary" onclick="clearAll()" id="clear-btn" disabled>🗑️ Clear All</button>
                 <input type="file" id="csvFile" class="file-input" accept=".csv" onchange="importCSV(event)">
                 <button class="btn btn-secondary" onclick="document.getElementById('csvFile').click()">📤 Import CSV</button>
+                <button class="btn btn-primary" onclick="saveSpreadsheet()" id="save-btn" disabled>💾 Save</button>
             </div>
+            
+            <div id="excel-error" class="error-message hidden"></div>
             
             <div class="spreadsheet-container">
                 <table class="spreadsheet" id="spreadsheet">
@@ -364,7 +479,7 @@
                         </tr>
                     </thead>
                     <tbody id="spreadsheet-body">
-                        <!-- Rows will be generated by JavaScript -->
+                        <tr><td colspan="5" class="loading">Connect to database to load data...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -389,6 +504,7 @@
 
             <div class="issue-form">
                 <h3 style="margin-bottom: 20px; color: #333;">➕ Add New Issue</h3>
+                <div id="issues-error" class="error-message hidden"></div>
                 <form onsubmit="addIssue(event)">
                     <div class="form-row">
                         <div class="form-group">
@@ -426,37 +542,225 @@
                         <textarea id="issue-description" rows="4" placeholder="Describe the issue..."></textarea>
                     </div>
                     
-                    <button type="submit" class="btn btn-primary">Add Issue</button>
+                    <button type="submit" class="btn btn-primary" id="add-issue-btn" disabled>Add Issue</button>
                 </form>
             </div>
 
             <div class="issues-list" id="issues-list">
-                <div class="no-issues" id="no-issues">
-                    No issues yet. Add your first issue above! 🎯
-                </div>
+                <div class="loading">Connect to database to load issues...</div>
             </div>
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/supabase/1.29.0/umd/supabase.min.js"></script>
     <script>
-        // Global data storage
+        // Global variables
+        let supabaseClient = null;
         let spreadsheetData = [];
         let issues = [];
-        
-        // Initialize spreadsheet
-        function initSpreadsheet() {
+        let isConnected = false;
+
+        // Check for database credentials in URL parameters
+        function checkUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            const url = params.get('url');
+            const key = params.get('key');
+            
+            if (url && key) {
+                document.getElementById('supabase-url').value = decodeURIComponent(url);
+                document.getElementById('supabase-key').value = decodeURIComponent(key);
+                connectDatabase();
+            }
+        }
+
+        // Connect to Supabase database
+        async function connectDatabase() {
+            const url = document.getElementById('supabase-url').value.trim();
+            const key = document.getElementById('supabase-key').value.trim();
+            
+            if (!url || !key) {
+                showError('excel-error', 'Please enter both Supabase URL and key');
+                return;
+            }
+
+            try {
+                supabaseClient = supabase.createClient(url, key);
+                
+                // Test connection by trying to fetch data
+                await supabaseClient.from('spreadsheet_data').select('*').limit(1);
+                
+                isConnected = true;
+                updateConnectionStatus(true);
+                enableButtons();
+                await loadData();
+                updateShareLink(url, key);
+                hideErrors();
+                
+            } catch (error) {
+                console.error('Connection failed:', error);
+                isConnected = false;
+                updateConnectionStatus(false);
+                showError('excel-error', 'Connection failed. Please check your credentials and ensure tables are created.');
+            }
+        }
+
+        function updateConnectionStatus(connected) {
+            const status = document.getElementById('connection-status');
+            if (connected) {
+                status.textContent = 'Connected ✓';
+                status.className = 'status-indicator status-connected';
+            } else {
+                status.textContent = 'Not Connected';
+                status.className = 'status-indicator status-disconnected';
+            }
+        }
+
+        function enableButtons() {
+            const buttons = ['add-row-btn', 'add-col-btn', 'clear-btn', 'save-btn', 'add-issue-btn'];
+            buttons.forEach(id => {
+                const btn = document.getElementById(id);
+                if (btn) btn.disabled = false;
+            });
+        }
+
+        function updateShareLink(url, key) {
+            const shareLink = document.getElementById('share-link');
+            const currentUrl = window.location.origin + window.location.pathname;
+            const shareUrl = `${currentUrl}?url=${encodeURIComponent(url)}&key=${encodeURIComponent(key)}`;
+            shareLink.textContent = shareUrl;
+        }
+
+        function showError(elementId, message) {
+            const errorEl = document.getElementById(elementId);
+            errorEl.textContent = message;
+            errorEl.classList.remove('hidden');
+        }
+
+        function hideErrors() {
+            document.querySelectorAll('.error-message').forEach(el => {
+                el.classList.add('hidden');
+            });
+        }
+
+        // Load data from database
+        async function loadData() {
+            if (!isConnected) return;
+
+            try {
+                // Load spreadsheet data
+                const { data: spreadsheetRows, error: spreadsheetError } = await supabaseClient
+                    .from('spreadsheet_data')
+                    .select('*')
+                    .order('row_index', { ascending: true });
+
+                if (spreadsheetError) throw spreadsheetError;
+
+                // Load issues
+                const { data: issuesData, error: issuesError } = await supabaseClient
+                    .from('issues')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (issuesError) throw issuesError;
+
+                // Process spreadsheet data
+                spreadsheetData = [];
+                if (spreadsheetRows && spreadsheetRows.length > 0) {
+                    const maxRow = Math.max(...spreadsheetRows.map(r => r.row_index));
+                    const maxCol = Math.max(...spreadsheetRows.map(r => r.col_index));
+                    
+                    // Initialize empty grid
+                    for (let i = 0; i <= maxRow; i++) {
+                        spreadsheetData[i] = new Array(maxCol + 1).fill('');
+                    }
+                    
+                    // Fill with data
+                    spreadsheetRows.forEach(row => {
+                        if (spreadsheetData[row.row_index]) {
+                            spreadsheetData[row.row_index][row.col_index] = row.value || '';
+                        }
+                    });
+                } else {
+                    initEmptySpreadsheet();
+                }
+
+                issues = issuesData || [];
+                
+                renderSpreadsheet();
+                renderIssues();
+                updateStats();
+                
+            } catch (error) {
+                console.error('Failed to load data:', error);
+                showError('excel-error', 'Failed to load data: ' + error.message);
+            }
+        }
+
+        function initEmptySpreadsheet() {
             const rows = 20;
             const cols = 5;
             
+            spreadsheetData = [];
             for (let i = 0; i < rows; i++) {
-                spreadsheetData[i] = [];
-                for (let j = 0; j < cols; j++) {
-                    spreadsheetData[i][j] = '';
-                }
+                spreadsheetData[i] = new Array(cols).fill('');
             }
-            renderSpreadsheet();
         }
 
+        // Save spreadsheet data
+        async function saveSpreadsheet() {
+            if (!isConnected) {
+                showError('excel-error', 'Not connected to database');
+                return;
+            }
+
+            try {
+                // Clear existing data
+                const { error: deleteError } = await supabaseClient
+                    .from('spreadsheet_data')
+                    .delete()
+                    .neq('id', 0); // Delete all rows
+
+                if (deleteError) throw deleteError;
+
+                // Insert new data
+                const dataToInsert = [];
+                spreadsheetData.forEach((row, rowIndex) => {
+                    row.forEach((cell, colIndex) => {
+                        if (cell && cell.trim() !== '') {
+                            dataToInsert.push({
+                                row_index: rowIndex,
+                                col_index: colIndex,
+                                value: cell
+                            });
+                        }
+                    });
+                });
+
+                if (dataToInsert.length > 0) {
+                    const { error: insertError } = await supabaseClient
+                        .from('spreadsheet_data')
+                        .insert(dataToInsert);
+
+                    if (insertError) throw insertError;
+                }
+
+                // Show success feedback
+                const saveBtn = document.getElementById('save-btn');
+                const originalText = saveBtn.textContent;
+                saveBtn.textContent = '✓ Saved!';
+                saveBtn.style.background = '#4caf50';
+                setTimeout(() => {
+                    saveBtn.textContent = originalText;
+                    saveBtn.style.background = '';
+                }, 2000);
+
+            } catch (error) {
+                console.error('Failed to save:', error);
+                showError('excel-error', 'Failed to save: ' + error.message);
+            }
+        }
+
+        // Spreadsheet functions
         function renderSpreadsheet() {
             const tbody = document.getElementById('spreadsheet-body');
             tbody.innerHTML = '';
@@ -471,6 +775,12 @@
                     input.value = cell;
                     input.addEventListener('input', (e) => {
                         spreadsheetData[rowIndex][colIndex] = e.target.value;
+                    });
+                    input.addEventListener('blur', () => {
+                        if (isConnected) {
+                            // Auto-save on blur
+                            saveSpreadsheet();
+                        }
                     });
                     td.appendChild(input);
                     tr.appendChild(td);
@@ -542,48 +852,66 @@
                 }
                 
                 renderSpreadsheet();
+                if (isConnected) saveSpreadsheet();
             };
             reader.readAsText(file);
         }
 
         function clearAll() {
             if (confirm('Are you sure you want to clear all data?')) {
-                initSpreadsheet();
+                initEmptySpreadsheet();
+                renderSpreadsheet();
+                if (isConnected) saveSpreadsheet();
             }
         }
 
         // Issue tracker functions
-        function addIssue(event) {
+        async function addIssue(event) {
             event.preventDefault();
             
+            if (!isConnected) {
+                showError('issues-error', 'Not connected to database');
+                return;
+            }
+
             const issue = {
-                id: Date.now(),
                 title: document.getElementById('issue-title').value,
                 description: document.getElementById('issue-description').value,
                 priority: document.getElementById('issue-priority').value,
                 status: document.getElementById('issue-status').value,
-                assignee: document.getElementById('issue-assignee').value,
-                createdDate: new Date().toLocaleDateString()
+                assignee: document.getElementById('issue-assignee').value || null,
+                created_at: new Date().toISOString()
             };
-            
-            issues.push(issue);
-            renderIssues();
-            updateStats();
-            
-            // Clear form
-            document.querySelector('.issue-form form').reset();
+
+            try {
+                const { data, error } = await supabaseClient
+                    .from('issues')
+                    .insert([issue])
+                    .select();
+
+                if (error) throw error;
+
+                issues.unshift(data[0]);
+                renderIssues();
+                updateStats();
+                
+                // Clear form
+                document.querySelector('.issue-form form').reset();
+                hideErrors();
+
+            } catch (error) {
+                console.error('Failed to add issue:', error);
+                showError('issues-error', 'Failed to add issue: ' + error.message);
+            }
         }
 
         function renderIssues() {
             const issuesList = document.getElementById('issues-list');
-            const noIssues = document.getElementById('no-issues');
             
             if (issues.length === 0) {
-                noIssues.style.display = 'block';
+                issuesList.innerHTML = '<div class="no-issues">No issues yet. Add your first issue above! 🎯</div>';
                 return;
             }
-            
-            noIssues.style.display = 'none';
             
             const issuesHTML = issues.map(issue => `
                 <div class="issue-item">
@@ -592,42 +920,6 @@
                         <div class="issue-status status-${issue.status.toLowerCase().replace(' ', '-')}">${issue.status}</div>
                     </div>
                     <div class="issue-meta">
-                        Priority: ${issue.priority} | Assignee: ${issue.assignee || 'Unassigned'} | Created: ${issue.createdDate}
+                        Priority: ${issue.priority} | Assignee: ${issue.assignee || 'Unassigned'} | Created: ${new Date(issue.created_at).toLocaleDateString()}
                     </div>
-                    <div class="issue-description">${issue.description}</div>
-                </div>
-            `).join('');
-            
-            issuesList.innerHTML = issuesHTML;
-        }
-
-        function updateStats() {
-            const total = issues.length;
-            const open = issues.filter(issue => issue.status === 'Open').length;
-            const closed = issues.filter(issue => issue.status === 'Closed').length;
-            
-            document.getElementById('total-issues').textContent = total;
-            document.getElementById('open-issues').textContent = open;
-            document.getElementById('closed-issues').textContent = closed;
-        }
-
-        function switchTab(tabName) {
-            // Update tab buttons
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            
-            // Show/hide tab content
-            document.getElementById('excel-tab').classList.toggle('hidden', tabName !== 'excel');
-            document.getElementById('issues-tab').classList.toggle('hidden', tabName !== 'issues');
-        }
-
-        // Initialize the app
-        document.addEventListener('DOMContentLoaded', function() {
-            initSpreadsheet();
-            updateStats();
-        });
-    </script>
-</body>
-</html>
+                
