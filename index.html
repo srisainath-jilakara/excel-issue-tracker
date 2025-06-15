@@ -44,7 +44,6 @@
             border-radius: 10px 10px 0 0;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             overflow: hidden;
-            /* Allow tabs to wrap on smaller screens */
             flex-wrap: wrap; 
         }
 
@@ -58,7 +57,6 @@
             font-weight: 600;
             transition: all 0.3s ease;
             border-bottom: 3px solid transparent;
-            /* Ensure tabs take up full width if they wrap */
             min-width: 120px; 
             text-align: center;
         }
@@ -140,14 +138,21 @@
             transform: translateY(-2px);
         }
 
+        /* New class for responsive tables */
+        .table-responsive {
+            overflow-x: auto; /* Allows horizontal scrolling */
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+            margin-top: 20px; /* Adjust margin if needed */
+        }
+
         .data-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
             background: white;
             border-radius: 8px;
-            overflow: hidden;
+            overflow: hidden; /* For rounded corners */
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            min-width: 600px; /* Ensure table has a minimum width for scrolling */
         }
 
         .data-table th {
@@ -162,6 +167,7 @@
         .data-table td {
             padding: 12px;
             border-bottom: 1px solid #e9ecef;
+            white-space: nowrap; /* Prevent content from wrapping inside cells */
         }
 
         .data-table tr:hover {
@@ -234,7 +240,7 @@
         /* For screens smaller than 768px (common tablet portrait / larger mobile landscape) */
         @media (max-width: 768px) {
             body {
-                font-size: 15px; /* Slightly smaller base font */
+                font-size: 15px;
             }
 
             .container {
@@ -242,7 +248,7 @@
             }
 
             .header h1 {
-                font-size: 2rem; /* Smaller header font */
+                font-size: 2rem;
             }
 
             .tabs {
@@ -252,7 +258,7 @@
             .tab {
                 padding: 12px 15px;
                 font-size: 15px;
-                flex: 1 1 33.33%; /* Attempt to make them 3 in a row, or wrap */
+                flex: 1 1 33.33%; 
             }
 
             .content {
@@ -261,60 +267,13 @@
             }
 
             .form-row {
-                flex-direction: column; /* Stack form inputs vertically */
-                gap: 0; /* Remove gap when stacking */
+                flex-direction: column;
+                gap: 0; 
                 margin-bottom: 0;
             }
 
             .form-row .form-group {
-                margin-bottom: 15px; /* Add margin between stacked form groups */
-            }
-
-            .data-table {
-                /* Make tables horizontally scrollable on small screens */
-                display: block;
-                overflow-x: auto;
-                white-space: nowrap; /* Prevent content from wrapping inside cells */
-                -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-            }
-            
-            .data-table thead, .data-table tbody, .data-table th, .data-table td, .data-table tr {
-                display: block; /* Treat table elements as blocks for responsiveness */
-            }
-
-            .data-table tr {
                 margin-bottom: 15px;
-                border: 1px solid #e9ecef;
-                border-radius: 5px;
-                padding: 10px;
-            }
-
-            .data-table td {
-                border-bottom: none;
-                padding: 8px 12px;
-                position: relative;
-                padding-left: 50%; /* Make space for data-label content */
-                text-align: right; /* Align content to the right */
-            }
-
-            .data-table td::before {
-                /* Use data-label for column headers on small screens */
-                content: attr(data-label);
-                position: absolute;
-                left: 10px;
-                width: calc(50% - 20px);
-                padding-right: 10px;
-                white-space: nowrap;
-                text-align: left;
-                font-weight: 600;
-                color: #495057;
-            }
-
-            /* Hide original table headers for card-like layout */
-            .data-table thead tr {
-                position: absolute;
-                top: -9999px;
-                left: -9999px;
             }
 
             .db-status {
@@ -343,10 +302,9 @@
                 padding: 10px 12px;
                 font-size: 14px;
                 flex: 1 1 100%; /* Make tabs stack fully */
-                border-bottom: 1px solid #e9ecef; /* Add border for stacked tabs */
+                border-bottom: 1px solid #e9ecef;
                 border-radius: 0;
             }
-            /* First tab in mobile view should have top-left radius, last tab bottom-right radius */
             .tabs .tab:first-child {
                 border-top-left-radius: 8px;
                 border-top-right-radius: 8px;
@@ -356,11 +314,10 @@
                 border-bottom-right-radius: 8px;
             }
             .tabs .tab.active {
-                 border-bottom-color: #667eea; /* Keep active indicator */
-                 border-bottom-left-radius: 0; /* Override if it's not the last one */
+                 border-bottom-color: #667eea;
+                 border-bottom-left-radius: 0;
                  border-bottom-right-radius: 0;
             }
-
 
             .content {
                 padding: 15px;
@@ -378,9 +335,6 @@
 
             .status {
                 font-size: 11px;
-            }
-            .data-table td::before {
-                font-size: 13px; /* Smaller label font */
             }
         }
         /* --- END OF CSS STYLES --- */
@@ -433,18 +387,20 @@
                     <button type="submit">Add Entry</button>
                 </form>
                 
-                <table class="data-table" id="ledgerTable">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Type</th>
-                            <th>Description</th>
-                            <th>Amount</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="data-table" id="ledgerTable">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
             </div>
 
             <div id="contacts" class="tab-content">
@@ -484,19 +440,21 @@
                     <button type="submit">Add Contact</button>
                 </form>
                 
-                <table class="data-table" id="contactTable">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Phone</th>
-                            <th>Email</th>
-                            <th>Type</th>
-                            <th>Notes</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="data-table" id="contactTable">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Phone</th>
+                                <th>Email</th>
+                                <th>Type</th>
+                                <th>Notes</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
             </div>
 
             <div id="issues" class="tab-content">
@@ -527,25 +485,27 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="issueDescription">Description</labe l>
+                        <label for="issueDescription">Description</label>
                         <textarea id="issueDescription" rows="4" required></textarea>
                     </div>
                     <button type="submit">Add Issue</button>
                 </form>
                 
-                <table class="data-table" id="issueTable">
-                    <thead>
-                        <tr>
-                            <th>Title</th>
-                            <th>Priority</th>
-                            <th>Status</th>
-                            <th>Description</th>
-                            <th>Created</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="data-table" id="issueTable">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Description</th>
+                                <th>Created</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -570,12 +530,12 @@
                     supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
                     
                     dbConnected = true;
-                    updateDbStatus();
+                    updateDbStatus(); // Update UI status
                     console.log('Supabase client initialized successfully.');
                 } catch (error) {
                     console.error('Failed to initialize Supabase client:', error);
                     dbConnected = false;
-                    updateDbStatus();
+                    updateDbStatus(); // Update UI status to disconnected
                 }
             } else {
                 dbConnected = false;
@@ -674,8 +634,8 @@
 
         // Function to delete data from a Supabase table
         async function deleteData(table, id) {
-            if (confirm('Are you sure you want to delete this item?')) { // Moved confirm inside as it's part of the action
-                if (!dbConnected || !supabase) { // Check for active connection
+            if (confirm('Are you sure you want to delete this item?')) { 
+                if (!dbConnected || !supabase) { 
                     alert('Database not connected. Please set up Supabase credentials.');
                     return false;
                 }
@@ -737,7 +697,8 @@
         // Function to load and render data into the specified table
         async function loadData(table) {
             const data = await fetchData(table); // Fetch data from Supabase
-            const tableBody = document.querySelector(`#${table}Table tbody`); // Get the table body element
+            // Corrected selector to target the table within its new responsive wrapper
+            const tableBody = document.querySelector(`#${table}Table tbody`); 
 
             if (tableBody) { // Check if the table body exists (it won't for inactive tabs)
                 tableBody.innerHTML = ''; // Clear any existing rows
@@ -748,8 +709,6 @@
                     tableBody.appendChild(row);
                 });
             } else {
-                // This warning is normal for tabs that are not currently active,
-                // as their table bodies are not displayed.
                 console.warn(`Table body for #${table}Table tbody not found. This is expected if the tab is not active.`);
             }
         }
@@ -832,13 +791,11 @@
 
             // Dynamically assign data-tab-name and onclick handlers to tab buttons
             document.querySelectorAll('.tab').forEach(button => {
-                // Extract tab name from button text content (e.g., "💰 Ledger" -> "ledger")
-                let tabName = button.textContent.toLowerCase().split(' ')[1]; // Takes the word after the emoji
-                if (!tabName) { // Fallback if emoji parsing fails
-                    if (button.textContent.includes('Ledger')) tabName = 'ledger';
-                    else if (button.textContent.includes('Contacts')) tabName = 'contacts';
-                    else if (button.textContent.includes('Issues')) tabName = 'issues';
-                }
+                let tabName = '';
+                // Robustly get tab name from button text content (e.g., "💰 Ledger" -> "ledger")
+                if (button.textContent.includes('Ledger')) tabName = 'ledger';
+                else if (button.textContent.includes('Contacts')) tabName = 'contacts';
+                else if (button.textContent.includes('Issues')) tabName = 'issues';
                 
                 button.setAttribute('data-tab-name', tabName); // Set a data attribute for easier lookup
                 button.onclick = (event) => showTab(tabName, event); // Assign click handler
