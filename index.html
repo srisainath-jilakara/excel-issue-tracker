@@ -12,7 +12,6 @@
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -23,7 +22,6 @@
             align-items: center;
             padding: 20px;
         }
-
         .container {
             max-width: 1400px;
             width: 100%;
@@ -36,7 +34,6 @@
             -webkit-backdrop-filter: blur(8px);
             margin-bottom: 20px; /* Space at the bottom */
         }
-
         .header {
             text-align: center;
             color: #333;
@@ -45,7 +42,6 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-
         .header h1 {
             font-size: 2.8rem;
             margin-bottom: 10px;
@@ -56,7 +52,6 @@
             color: #555;
             font-size: 1.1rem;
         }
-
         /* Connection Status */
         .config-section {
             background: rgba(255,255,255,0.9);
@@ -66,7 +61,6 @@
             box-shadow: 0 8px 25px rgba(0,0,0,0.15);
             border: 1px solid #e0e0e0;
         }
-
         .config-section h3 {
             color: #333;
             margin-bottom: 15px;
@@ -74,14 +68,12 @@
             border-bottom: 2px solid #eee;
             padding-bottom: 10px;
         }
-
         .config-form {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 15px;
             align-items: end;
         }
-
         /* Status Indicator */
         .status-indicator {
             padding: 8px 15px;
@@ -93,22 +85,18 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             animation: pulse 1.5s infinite alternate;
         }
-
         .status-connected {
             background: #e8f5e8; /* Light Green */
             color: #388e3c; /* Dark Green */
         }
-
         .status-disconnected {
             background: #ffebee; /* Light Red */
             color: #d32f2f; /* Dark Red */
         }
-
         @keyframes pulse {
             from { opacity: 0.8; transform: scale(1); }
             to { opacity: 1; transform: scale(1.02); }
         }
-
         /* Tabs */
         .tabs {
             display: flex;
@@ -120,7 +108,6 @@
             -webkit-backdrop-filter: blur(12px);
             box-shadow: 0 5px 20px rgba(0,0,0,0.1);
         }
-
         .tab {
             flex: 1;
             padding: 14px 25px;
@@ -135,19 +122,16 @@
             font-weight: 600;
             letter-spacing: 0.5px;
         }
-
         .tab.active {
             background: rgba(255,255,255,0.3);
             transform: translateY(-3px);
             box-shadow: 0 6px 20px rgba(0,0,0,0.25);
             text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
         }
-
         .tab:hover:not(.active) {
             background: rgba(255,255,255,0.1);
             transform: translateY(-1px);
         }
-
         .tab-content {
             background: rgba(255,255,255,0.95);
             border-radius: 20px;
@@ -158,16 +142,13 @@
             min-height: 650px;
             animation: fadeIn 0.5s ease-out;
         }
-
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
         .hidden {
             display: none;
         }
-
         /* Buttons */
         .btn {
             padding: 12px 25px;
@@ -184,44 +165,36 @@
             gap: 8px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
-
         .btn-primary {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
         }
-
         .btn-success {
             background: linear-gradient(135deg, #56ab2f, #a8e6cf);
             color: white;
         }
-
         .btn-secondary {
             background: linear-gradient(135deg, #757575, #9e9e9e);
             color: white;
         }
-
         .btn:hover {
             transform: translateY(-3px);
             box-shadow: 0 6px 20px rgba(0,0,0,0.25);
         }
-
         .btn:active {
             transform: translateY(0);
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-
         .btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
         }
-
         /* Form Elements */
         .form-group {
             margin-bottom: 20px;
         }
-
         .form-group label {
             display: block;
             margin-bottom: 8px;
@@ -229,7 +202,6 @@
             color: #444;
             font-size: 15px;
         }
-
         .form-group input, .form-group select, .form-group textarea {
             width: 100%;
             padding: 12px;
@@ -239,20 +211,17 @@
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
             background: #f9f9f9;
         }
-
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
             background: white;
         }
-
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
         }
-
         /* Messages */
         .error-message, .success-message, .info-message {
             padding: 12px 20px;
@@ -262,30 +231,25 @@
             font-weight: 500;
             animation: slideIn 0.4s ease-out;
         }
-
         .error-message {
             background: #ffebee; /* Light Red */
             color: #c62828; /* Dark Red */
             border: 1px solid #ffcdd2;
         }
-
         .success-message {
             background: #e8f5e8; /* Light Green */
             color: #2e7d32; /* Dark Green */
             border: 1px solid #c8e6c9;
         }
-
         .info-message {
             background: #e3f2fd; /* Light Blue */
             color: #1565c0; /* Dark Blue */
             border: 1px solid #bbdefb;
         }
-
         @keyframes slideIn {
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
         /* Excel Tab Specific */
         .excel-controls {
             margin-bottom: 25px;
@@ -295,7 +259,6 @@
             align-items: center;
             justify-content: center;
         }
-
         .spreadsheet-container {
             overflow: auto;
             border: 2px solid #e0e0e0;
@@ -304,13 +267,11 @@
             background: white;
             box-shadow: inset 0 2px 8px rgba(0,0,0,0.05);
         }
-
         .spreadsheet {
             border-collapse: collapse;
             width: 100%;
             min-width: 900px; /* Ensure a decent width */
         }
-
         .spreadsheet td, .spreadsheet th {
             border: 1px solid #eee;
             padding: 0; /* Remove padding from TD */
@@ -318,7 +279,6 @@
             position: relative;
             vertical-align: middle;
         }
-
         .spreadsheet th {
             background: linear-gradient(180deg, #f8f8f8, #f0f0f0);
             font-weight: bold;
@@ -329,7 +289,6 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-
         .spreadsheet input {
             width: 100%;
             height: 40px; /* Fixed height for inputs */
@@ -340,7 +299,6 @@
             transition: background-color 0.2s ease;
             box-shadow: inset 0 0 0 1px transparent; /* For focus effect */
         }
-
         .spreadsheet input:focus {
             outline: none;
             background: #eef4ff; /* Light blue background on focus */
@@ -362,7 +320,6 @@
             flex-direction: column;
             gap: 10px;
         }
-
         .spinner {
             border: 4px solid rgba(0, 0, 0, 0.1);
             border-left-color: #667eea;
@@ -371,13 +328,10 @@
             height: 40px;
             animation: spin 1s linear infinite;
         }
-
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-
-
         /* Issues Tab Specific */
         .issue-form {
             background: linear-gradient(135deg, #f8f9fa, #e9ecef);
@@ -387,7 +341,6 @@
             box-shadow: 0 6px 20px rgba(0,0,0,0.1);
             border: 1px solid #e0e0e0;
         }
-
         .issues-list {
             background: white;
             border-radius: 15px;
@@ -395,35 +348,29 @@
             box-shadow: 0 6px 20px rgba(0,0,0,0.1);
             border: 1px solid #e0e0e0;
         }
-
         .issue-item {
             padding: 20px 25px;
             border-bottom: 1px solid #f0f0f0;
             transition: background-color 0.3s ease;
             position: relative; /* For action buttons */
         }
-
         .issue-item:hover {
             background-color: #fcfdff;
         }
-
         .issue-item:last-child {
             border-bottom: none;
         }
-
         .issue-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 10px;
         }
-
         .issue-title {
             font-weight: bold;
             font-size: 18px;
             color: #333;
         }
-
         .issue-status {
             padding: 6px 15px;
             border-radius: 25px;
@@ -433,22 +380,18 @@
             letter-spacing: 0.5px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.08);
         }
-
         .status-open {
             background: #ffe0b2; /* Light Orange */
             color: #ef6c00; /* Dark Orange */
         }
-
         .status-in-progress {
             background: #bbdefb; /* Light Blue */
             color: #1976d2; /* Dark Blue */
         }
-
         .status-closed {
             background: #c8e6c9; /* Light Green */
             color: #2e7d32; /* Dark Green */
         }
-
         .issue-meta {
             font-size: 13px;
             color: #777;
@@ -457,20 +400,17 @@
             flex-wrap: wrap;
             gap: 10px 15px;
         }
-
         .issue-description {
             color: #555;
             line-height: 1.6;
             font-size: 15px;
         }
-
         .stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 20px;
             margin-bottom: 30px;
         }
-
         .stat-card {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
@@ -479,20 +419,17 @@
             text-align: center;
             box-shadow: 0 6px 20px rgba(0,0,0,0.2);
         }
-
         .stat-number {
             font-size: 2.5rem;
             font-weight: bold;
             margin-bottom: 8px;
             line-height: 1;
         }
-
         .stat-label {
             font-size: 15px;
             opacity: 0.9;
             letter-spacing: 0.5px;
         }
-
         .no-data {
             text-align: center;
             padding: 50px;
@@ -500,7 +437,6 @@
             font-style: italic;
             font-size: 1.1rem;
         }
-
         .file-input {
             display: none;
         }
@@ -517,7 +453,6 @@
             align-items: center;
             z-index: 2000;
         }
-
         .modal-content {
             background: white;
             padding: 30px;
@@ -528,30 +463,25 @@
             text-align: center;
             animation: modalPop 0.3s ease-out;
         }
-
         @keyframes modalPop {
             from { opacity: 0; transform: scale(0.9); }
             to { opacity: 1; transform: scale(1); }
         }
-
         .modal-content h4 {
             font-size: 1.5rem;
             margin-bottom: 20px;
             color: #333;
         }
-
         .modal-content p {
             margin-bottom: 25px;
             color: #555;
             line-height: 1.6;
         }
-
         .modal-buttons {
             display: flex;
             justify-content: center;
             gap: 15px;
         }
-
         .modal-buttons button {
             padding: 10px 20px;
             border: none;
@@ -561,30 +491,24 @@
             font-weight: 600;
             transition: background-color 0.2s ease;
         }
-
         .modal-confirm {
             background-color: #d32f2f;
             color: white;
         }
-
         .modal-confirm:hover {
             background-color: #b71c1c;
         }
-
         .modal-cancel {
             background-color: #e0e0e0;
             color: #555;
         }
-
         .modal-cancel:hover {
             background-color: #c0c0c0;
         }
-
         .modal-ok {
             background-color: #667eea;
             color: white;
         }
-
         .modal-ok:hover {
             background-color: #516be1;
         }
@@ -617,7 +541,6 @@
         .user-id-copy-btn:hover {
             background: rgba(255,255,255,0.3);
         }
-
         /* Responsive Design */
         @media (max-width: 1024px) {
             .container {
@@ -647,7 +570,6 @@
                 font-size: 2rem;
             }
         }
-
         @media (max-width: 768px) {
             body {
                 padding: 10px;
@@ -696,7 +618,6 @@
                 padding: 20px;
             }
         }
-
         @media (max-width: 480px) {
             .header h1 {
                 font-size: 1.5rem;
@@ -740,7 +661,6 @@
                 <button class="user-id-copy-btn" id="copy-user-id-btn">Copy</button>
             </div>
         </div>
-
         <!-- Database Configuration -->
         <div class="config-section">
             <h3>🔗 Database Connection</h3>
@@ -752,7 +672,6 @@
                 <div class="spinner"></div>
                 <p>Connecting to Supabase...</p>
             </div>
-
             <div class="setup-instructions info-message">
                 <h4>📋 Setup Instructions:</h4>
                 <p>1. Go to <a href="https://supabase.com/" target="_blank" style="color:#1976d2; text-decoration: underline;">Supabase.com</a> and create a new project.</p>
@@ -765,7 +684,6 @@ CREATE TABLE excel_sheets (
   data JSONB,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
-
 CREATE TABLE issues (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id TEXT NOT NULL,
@@ -776,33 +694,24 @@ CREATE TABLE issues (
   assignee TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
-
 -- Enable Row Level Security (RLS) for both tables
 ALTER TABLE excel_sheets ENABLE ROW LEVEL SECURITY;
 ALTER TABLE issues ENABLE ROW LEVEL SECURITY;
-
 -- Create policies to allow users to access their own data
 CREATE POLICY "Users can view their own excel sheets" ON excel_sheets
   FOR SELECT USING (auth.uid() = user_id);
-
 CREATE POLICY "Users can insert their own excel sheets" ON excel_sheets
   FOR INSERT WITH CHECK (auth.uid() = user_id);
-
 CREATE POLICY "Users can update their own excel sheets" ON excel_sheets
   FOR UPDATE USING (auth.uid() = user_id);
-
 CREATE POLICY "Users can delete their own excel sheets" ON excel_sheets
   FOR DELETE USING (auth.uid() = user_id);
-
 CREATE POLICY "Users can view their own issues" ON issues
   FOR SELECT USING (auth.uid() = user_id);
-
 CREATE POLICY "Users can insert their own issues" ON issues
   FOR INSERT WITH CHECK (auth.uid() = user_id);
-
 CREATE POLICY "Users can update their own issues" ON issues
   FOR UPDATE USING (auth.uid() = user_id);
-
 CREATE POLICY "Users can delete their own issues" ON issues
   FOR DELETE USING (auth.uid() = user_id);
 </code>
@@ -830,12 +739,10 @@ CREATE POLICY "Users can delete their own issues" ON issues
             <div id="config-error" class="error-message hidden"></div>
             <div id="config-success" class="success-message hidden"></div>
         </div>
-
         <div class="tabs">
             <button class="tab active" id="excel-tab-btn">📈 Excel Sheet</button>
             <button class="tab" id="issues-tab-btn">🐛 Issue Tracker</button>
         </div>
-
         <!-- Excel Tab -->
         <div id="excel-tab" class="tab-content">
             <div id="excel-loading" class="loading-overlay hidden">
@@ -871,7 +778,6 @@ CREATE POLICY "Users can delete their own issues" ON issues
                 </table>
             </div>
         </div>
-
         <!-- Issues Tab -->
         <div id="issues-tab" class="tab-content hidden">
             <div id="issues-loading" class="loading-overlay hidden">
@@ -892,7 +798,6 @@ CREATE POLICY "Users can delete their own issues" ON issues
                     <div class="stat-label">Closed Issues</div>
                 </div>
             </div>
-
             <div class="issue-form">
                 <h3 style="margin-bottom: 20px; color: #333;">➕ Add New Issue</h3>
                 <div id="issues-error" class="error-message hidden"></div>
@@ -936,13 +841,11 @@ CREATE POLICY "Users can delete their own issues" ON issues
                     <button type="submit" class="btn btn-primary" id="add-issue-btn">Add Issue</button>
                 </form>
             </div>
-
             <div class="issues-list" id="issues-list">
                 <div class="no-data">No issues found. Add your first issue above!</div>
             </div>
         </div>
     </div>
-
     <!-- Custom Modals -->
     <div id="alert-modal" class="modal-overlay hidden">
         <div class="modal-content">
@@ -953,28 +856,25 @@ CREATE POLICY "Users can delete their own issues" ON issues
             </div>
         </div>
     </div>
-
     <div id="confirm-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <h4 id="confirm-modal-title"></h4>
             <p id="confirm-modal-message"></p>
             <div class="modal-buttons">
                 <button class="modal-confirm" id="confirm-modal-yes">Yes</button>
-                <button class="modal-cancel" id="confirm-modal-no">No</button>
+                <button class="modal-cancel" id="confirm-cancel-no">No</button> <!-- Corrected ID from 'confirm-modal-no' to 'confirm-cancel-no' to match event listener -->
             </div>
         </div>
     </div>
-
     <script>
         // Global variables for data and Supabase client
         let supabaseClient = null;
         let currentUserId = null;
         let isConnectedToSupabase = false;
         let isDemoMode = false;
-
         let spreadsheetData = []; // Main data for the Excel sheet
         let issues = [];          // Main data for issues
-
+        
         // --- Utility Functions for UI Messages and Modals ---
         function showMessage(elementId, message, type = 'info') {
             const el = document.getElementById(elementId);
@@ -985,11 +885,9 @@ CREATE POLICY "Users can delete their own issues" ON issues
                 el.classList.add('hidden');
             }, 5000);
         }
-
         function hideMessage(elementId) {
             document.getElementById(elementId).classList.add('hidden');
         }
-
         function showAlert(title, message) {
             return new Promise(resolve => {
                 const modal = document.getElementById('alert-modal');
@@ -1002,7 +900,6 @@ CREATE POLICY "Users can delete their own issues" ON issues
                 modal.classList.remove('hidden');
             });
         }
-
         function showConfirm(title, message) {
             return new Promise(resolve => {
                 const modal = document.getElementById('confirm-modal');
@@ -1012,22 +909,20 @@ CREATE POLICY "Users can delete their own issues" ON issues
                     modal.classList.add('hidden');
                     resolve(true);
                 };
-                document.getElementById('confirm-modal-no').onclick = () => {
+                document.getElementById('confirm-cancel-no').onclick = () => { // Corrected listener ID
                     modal.classList.add('hidden');
                     resolve(false);
                 };
                 modal.classList.remove('hidden');
             });
         }
-
         function showLoading(elementId) {
             document.getElementById(elementId).classList.remove('hidden');
         }
-
         function hideLoading(elementId) {
             document.getElementById(elementId).classList.add('hidden');
         }
-
+        
         // --- Supabase and Database Connection ---
         async function initializeSupabase(url, key) {
             try {
@@ -1037,35 +932,37 @@ CREATE POLICY "Users can delete their own issues" ON issues
                 supabaseClient = Supabase.createClient(url, key);
                 
                 // Sign in anonymously for basic access
-                const { data, error } = await supabaseClient.auth.signInAnonymously();
-                if (error) throw error;
-
-                currentUserId = data.user.id;
+                const { data: authData, error: authError } = await supabaseClient.auth.signInAnonymously();
+                if (authError) throw authError;
+                
+                currentUserId = authData.user.id;
                 isConnectedToSupabase = true;
                 isDemoMode = false;
+                
                 updateConnectionStatus(true, `Connected to Supabase. User: ${currentUserId.substring(0, 8)}...`);
                 showMessage('config-success', 'Successfully connected to Supabase and signed in!');
                 document.getElementById('user-id-display').classList.remove('hidden');
                 document.getElementById('current-user-id').textContent = currentUserId;
-
-                await loadDataFromSupabase(); // Load data after successful connection
+                
+                // Load data and set up real-time listeners only AFTER successful auth and user ID is known
+                await loadDataFromSupabase();
+                setupSupabaseListeners(); // This sets up the real-time listener for issues
             } catch (error) {
                 console.error('Supabase connection error:', error.message);
                 showMessage('config-error', `Failed to connect or sign in: ${error.message}`, 'error');
                 updateConnectionStatus(false);
                 isConnectedToSupabase = false;
-                isDemoMode = false; // Reset to ensure full demo mode if connection fails
+                isDemoMode = false;
                 await enableDemoMode(); // Fallback to demo mode if real connection fails
             } finally {
                 hideLoading('loading-config');
             }
         }
-
+        
         async function connectDatabase() {
             hideMessage('config-error');
             hideMessage('config-success');
             showLoading('loading-config');
-
             const url = document.getElementById('supabase-url').value.trim();
             const key = document.getElementById('supabase-key').value.trim();
             
@@ -1076,7 +973,7 @@ CREATE POLICY "Users can delete their own issues" ON issues
                 hideLoading('loading-config');
             }
         }
-
+        
         async function enableDemoMode() {
             hideMessage('config-error');
             hideMessage('config-success');
@@ -1084,13 +981,15 @@ CREATE POLICY "Users can delete their own issues" ON issues
             isConnectedToSupabase = false; // Ensure this is false for demo mode
             currentUserId = localStorage.getItem('demoUserId') || crypto.randomUUID();
             localStorage.setItem('demoUserId', currentUserId);
+            
             updateConnectionStatus(true, `Demo Mode Active. Your local ID: ${currentUserId.substring(0, 8)}...`);
             showMessage('config-success', 'Demo mode enabled! Data will be stored locally in your browser.', 'success');
             document.getElementById('user-id-display').classList.remove('hidden');
             document.getElementById('current-user-id').textContent = currentUserId;
+            
             await loadDataFromLocalStorage();
         }
-
+        
         function updateConnectionStatus(connected, text = null) {
             const status = document.getElementById('connection-status');
             if (connected) {
@@ -1118,14 +1017,13 @@ CREATE POLICY "Users can delete their own issues" ON issues
                 document.body.removeChild(textArea);
             }
         }
-
+        
         // --- Data Persistence (Supabase vs Local Storage) ---
         async function saveData() {
             if (!currentUserId) {
-                await showAlert('Save Error', 'Cannot save data without a valid user ID.');
+                await showAlert('Save Error', 'Cannot save data without a valid user ID. Please connect or enable demo mode.');
                 return;
             }
-
             if (isDemoMode) {
                 saveDataToLocalStorage();
             } else if (isConnectedToSupabase && supabaseClient) {
@@ -1134,35 +1032,7 @@ CREATE POLICY "Users can delete their own issues" ON issues
                 await showAlert('Save Error', 'Not connected to Supabase or in demo mode. Please connect or enable demo mode.');
             }
         }
-
-        async function loadFromStorage() {
-            if (!currentUserId) { // This handles initial load before auth is ready for Supabase
-                 if (localStorage.getItem('demoUserId')) {
-                    isDemoMode = true;
-                    currentUserId = localStorage.getItem('demoUserId');
-                    updateConnectionStatus(true, `Demo Mode Active. Your local ID: ${currentUserId.substring(0, 8)}...`);
-                    document.getElementById('user-id-display').classList.remove('hidden');
-                    document.getElementById('current-user-id').textContent = currentUserId;
-                    await loadDataFromLocalStorage();
-                } else {
-                    // Start in disconnected state and let user choose
-                    updateConnectionStatus(false, 'Not Connected');
-                    document.getElementById('user-id-display').classList.add('hidden');
-                }
-                return;
-            }
-
-            if (isDemoMode) {
-                await loadDataFromLocalStorage();
-            } else if (isConnectedToSupabase && supabaseClient) {
-                await loadDataFromSupabase();
-            } else {
-                 // If not connected and not in demo mode, display appropriate message
-                 updateConnectionStatus(false, 'Not Connected');
-                 document.getElementById('user-id-display').classList.add('hidden');
-            }
-        }
-
+        
         // Local Storage Implementation (for Demo Mode)
         function saveDataToLocalStorage() {
             try {
@@ -1174,7 +1044,7 @@ CREATE POLICY "Users can delete their own issues" ON issues
                 showMessage('excel-error', 'Failed to save data to local storage.', 'error');
             }
         }
-
+        
         function loadDataFromLocalStorage() {
             try {
                 const savedSpreadsheet = localStorage.getItem(`spreadsheet_data_${currentUserId}`);
@@ -1183,7 +1053,6 @@ CREATE POLICY "Users can delete their own issues" ON issues
                 } else {
                     initEmptySpreadsheet();
                 }
-
                 const savedIssues = localStorage.getItem(`issues_data_${currentUserId}`);
                 if (savedIssues) {
                     issues = JSON.parse(savedIssues);
@@ -1204,7 +1073,7 @@ CREATE POLICY "Users can delete their own issues" ON issues
                 updateStats();
             }
         }
-
+        
         // Supabase Implementation
         async function saveDataToSupabase() {
             showLoading('excel-loading'); // Show loading for excel save
@@ -1217,11 +1086,10 @@ CREATE POLICY "Users can delete their own issues" ON issues
                     .select('id')
                     .eq('user_id', currentUserId)
                     .single();
-
                 if (fetchExcelError && fetchExcelError.code !== 'PGRST116') { // PGRST116 means no rows found
                     throw fetchExcelError;
                 }
-
+                
                 if (existingExcel) {
                     // Update existing row
                     const { error } = await supabaseClient
@@ -1236,24 +1104,21 @@ CREATE POLICY "Users can delete their own issues" ON issues
                         .insert({ user_id: currentUserId, data: spreadsheetData });
                     if (error) throw error;
                 }
-
-                // Issues are added/fetched in real-time by onSnapshot listener, no need to "save" all issues here explicitly
-
-                showMessage('excel-success', 'Excel and Issues data synchronized with Supabase!', 'success');
+                showMessage('excel-success', 'Excel data synchronized with Supabase!', 'success');
             } catch (error) {
                 console.error('Error saving to Supabase:', error.message);
-                showMessage('excel-error', `Failed to save data to Supabase: ${error.message}`, 'error');
+                showMessage('excel-error', `Failed to save Excel data to Supabase: ${error.message}`, 'error');
             } finally {
                 hideLoading('excel-loading');
             }
         }
-
+        
         async function loadDataFromSupabase() {
             showLoading('excel-loading'); // Show loading for excel
             showLoading('issues-loading'); // Show loading for issues
             hideMessage('excel-error');
             hideMessage('issues-error');
-
+            
             try {
                 // Load Excel Sheet Data
                 const { data: excelDataResponse, error: excelError } = await supabaseClient
@@ -1261,20 +1126,19 @@ CREATE POLICY "Users can delete their own issues" ON issues
                     .select('data')
                     .eq('user_id', currentUserId)
                     .single();
-
                 if (excelError && excelError.code !== 'PGRST116') { // PGRST116 means no rows found
                     throw excelError;
                 }
-
+                
                 if (excelDataResponse && excelDataResponse.data) {
                     spreadsheetData = excelDataResponse.data;
                 } else {
                     initEmptySpreadsheet(); // Initialize if no data found
                 }
                 renderSpreadsheet();
-
-                // Set up real-time listener for Issues (already done in setupSupabaseListeners)
-                // This will keep 'issues' array updated automatically
+                
+                // Issues are loaded by fetchIssuesFromSupabase, which is called by the real-time listener.
+                // We ensure it's called once after connection and then via changes.
                 
                 showMessage('config-success', 'Data loaded from Supabase!', 'success');
             } catch (error) {
@@ -1290,19 +1154,18 @@ CREATE POLICY "Users can delete their own issues" ON issues
                 hideLoading('issues-loading');
             }
         }
-
+        
         // Supabase Real-time Listener for Issues
         function setupSupabaseListeners() {
-            if (!supabaseClient) {
-                console.warn("Supabase client not initialized, skipping real-time listeners.");
+            if (!supabaseClient || !currentUserId) { // Ensure client and user ID are ready
+                console.warn("Supabase client or user ID not initialized, skipping real-time listeners setup.");
                 return;
             }
-
             // Unsubscribe existing listeners if any
             supabaseClient.removeAllChannels();
-
+            
             supabaseClient
-                .channel('public:issues')
+                .channel('public:issues_changes') // Unique channel name to avoid conflicts
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'issues', filter: `user_id=eq.${currentUserId}` }, payload => {
                     console.log('Change received!', payload);
                     // Re-fetch all issues or update locally
@@ -1329,7 +1192,6 @@ CREATE POLICY "Users can delete their own issues" ON issues
                     .select('*')
                     .eq('user_id', currentUserId)
                     .order('created_at', { ascending: false }); // Sort by latest first
-
                 if (error) throw error;
                 issues = data || [];
                 renderIssues();
@@ -1341,8 +1203,7 @@ CREATE POLICY "Users can delete their own issues" ON issues
                 hideLoading('issues-loading');
             }
         }
-
-
+        
         // --- Tab Switching ---
         function switchTab(tabName) {
             document.querySelectorAll('.tab').forEach(tab => {
@@ -1355,7 +1216,7 @@ CREATE POLICY "Users can delete their own issues" ON issues
             });
             document.getElementById(tabName + '-tab').classList.remove('hidden');
         }
-
+        
         // --- Excel Sheet Logic ---
         function initEmptySpreadsheet(rows = 20, cols = 5) {
             spreadsheetData = [];
@@ -1363,11 +1224,10 @@ CREATE POLICY "Users can delete their own issues" ON issues
                 spreadsheetData[i] = new Array(cols).fill('');
             }
         }
-
+        
         function renderSpreadsheet() {
             const tbody = document.getElementById('spreadsheet-body');
             tbody.innerHTML = '';
-
             // Update header columns in case new columns were added
             const headerRow = document.getElementById('header-row');
             headerRow.innerHTML = ''; // Clear existing headers
@@ -1377,9 +1237,18 @@ CREATE POLICY "Users can delete their own issues" ON issues
                 th.textContent = String.fromCharCode(65 + i); // A, B, C...
                 headerRow.appendChild(th);
             }
-
+            
+            // Ensure there's always at least one row for initial display
+            if (spreadsheetData.length === 0) {
+                initEmptySpreadsheet(1, numCols); // Initialize with at least 1 row
+            }
+        
             spreadsheetData.forEach((row, rowIndex) => {
                 const tr = document.createElement('tr');
+                // Ensure row has enough columns if numCols increased
+                while (row.length < numCols) {
+                    row.push('');
+                }
                 row.forEach((cell, colIndex) => {
                     const td = document.createElement('td');
                     const input = document.createElement('input');
@@ -1392,7 +1261,7 @@ CREATE POLICY "Users can delete their own issues" ON issues
                 tbody.appendChild(tr);
             });
         }
-
+        
         function updateCell(row, col, value) {
             if (spreadsheetData[row]) {
                 spreadsheetData[row][col] = value;
@@ -1403,37 +1272,38 @@ CREATE POLICY "Users can delete their own issues" ON issues
                 }
             }
         }
-
+        
         function addRow() {
             const cols = spreadsheetData[0] ? spreadsheetData[0].length : 5;
             spreadsheetData.push(new Array(cols).fill(''));
             renderSpreadsheet();
-            if (isConnectedToSupabase || isDemoMode) {
-                saveData(); // Save changes after adding row
+            // Saving is triggered by explicit 'Save' button in Supabase mode
+            if (isDemoMode) {
+                saveDataToLocalStorage();
             }
         }
-
+        
         function addColumn() {
             // Add column to data
             spreadsheetData.forEach(row => {
                 row.push('');
             });
             renderSpreadsheet(); // Rerender to update headers and new cells
-            if (isConnectedToSupabase || isDemoMode) {
-                saveData(); // Save changes after adding column
+            // Saving is triggered by explicit 'Save' button in Supabase mode
+            if (isDemoMode) {
+                saveDataToLocalStorage();
             }
         }
-
+        
         async function clearAll() {
             const confirmed = await showConfirm('Clear Spreadsheet', 'Are you sure you want to clear all spreadsheet data? This cannot be undone.');
             if (confirmed) {
                 initEmptySpreadsheet();
                 renderSpreadsheet();
                 if (!currentUserId) {
-                    showAlert('Error', 'Cannot clear persistent data without a user ID.');
+                    await showAlert('Error', 'Cannot clear persistent data without a user ID.');
                     return;
                 }
-
                 if (isDemoMode) {
                     saveDataToLocalStorage();
                 } else if (isConnectedToSupabase && supabaseClient) {
@@ -1454,7 +1324,7 @@ CREATE POLICY "Users can delete their own issues" ON issues
                 }
             }
         }
-
+        
         function exportToCSV() {
             let csvContent = '';
             spreadsheetData.forEach(row => {
@@ -1472,11 +1342,10 @@ CREATE POLICY "Users can delete their own issues" ON issues
             URL.revokeObjectURL(url);
             showMessage('excel-success', 'Spreadsheet exported as CSV!', 'success');
         }
-
+        
         function importCSV(event) {
             const file = event.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = async function(e) {
                 const csv = e.target.result;
@@ -1499,23 +1368,24 @@ CREATE POLICY "Users can delete their own issues" ON issues
                     cells.push(currentCell.replace(/"/g, '')); // Remove extra quotes at the end
                     return cells;
                 }).filter(row => row.some(cell => cell.trim() !== '')); // Filter out empty rows
-
+                
                 if (rows.length === 0) {
                     showAlert('Import Error', 'CSV file is empty or invalid.');
                     return;
                 }
-
+                
                 // Adjust columns to fit imported data
                 let maxCols = 0;
                 rows.forEach(row => {
                     if (row.length > maxCols) maxCols = row.length;
                 });
-
+                
                 spreadsheetData = rows;
+                
                 // Ensure minimum rows/cols
                 const minRows = 20;
                 const minCols = Math.max(5, maxCols); // Ensure at least 5 cols
-
+                
                 while (spreadsheetData.length < minRows) {
                     spreadsheetData.push(new Array(minCols).fill(''));
                 }
@@ -1524,7 +1394,6 @@ CREATE POLICY "Users can delete their own issues" ON issues
                         row.push('');
                     }
                 });
-
                 renderSpreadsheet();
                 await saveData(); // Save imported data
                 showMessage('excel-success', 'CSV data imported successfully!', 'success');
@@ -1532,17 +1401,16 @@ CREATE POLICY "Users can delete their own issues" ON issues
             };
             reader.readAsText(file);
         }
-
+        
         // --- Issue Tracking Logic ---
         async function addIssue(event) {
             event.preventDefault();
             hideMessage('issues-error');
             
             if (!currentUserId) {
-                showAlert('Authentication Required', 'Please connect to Supabase or enable Demo Mode to add issues.');
+                await showAlert('Authentication Required', 'Please connect to Supabase or enable Demo Mode to add issues.');
                 return;
             }
-
             const title = document.getElementById('issue-title').value.trim();
             const description = document.getElementById('issue-description').value.trim();
             const priority = document.getElementById('issue-priority').value;
@@ -1553,7 +1421,7 @@ CREATE POLICY "Users can delete their own issues" ON issues
                 showMessage('issues-error', 'Issue Title is required.', 'error');
                 return;
             }
-
+            
             const newIssue = {
                 title,
                 description,
@@ -1563,7 +1431,7 @@ CREATE POLICY "Users can delete their own issues" ON issues
                 created_at: new Date().toISOString(), // Use ISO string for consistent date
                 user_id: currentUserId // Link issue to the current user
             };
-
+            
             if (isDemoMode) {
                 newIssue.id = Date.now().toString(); // Simple ID for demo mode
                 issues.unshift(newIssue);
@@ -1579,7 +1447,7 @@ CREATE POLICY "Users can delete their own issues" ON issues
                         .insert([newIssue]);
                     if (error) throw error;
                     showMessage('issues-success', 'Issue added to Supabase!', 'success');
-                    // Data will be re-rendered by the real-time listener
+                    // Data will be re-rendered by the real-time listener (fetchIssuesFromSupabase)
                 } catch (error) {
                     console.error('Error adding issue to Supabase:', error.message);
                     showMessage('issues-error', `Failed to add issue: ${error.message}`, 'error');
@@ -1597,7 +1465,7 @@ CREATE POLICY "Users can delete their own issues" ON issues
             document.getElementById('issue-priority').value = 'Medium';
             document.getElementById('issue-status').value = 'Open';
         }
-
+        
         function renderIssues() {
             const issuesList = document.getElementById('issues-list');
             
@@ -1605,7 +1473,6 @@ CREATE POLICY "Users can delete their own issues" ON issues
                 issuesList.innerHTML = '<div class="no-data">No issues found. Add your first issue above!</div>';
                 return;
             }
-
             issuesList.innerHTML = '';
             issues.forEach(issue => {
                 const issueDiv = document.createElement('div');
@@ -1627,11 +1494,188 @@ CREATE POLICY "Users can delete their own issues" ON issues
                         <span>Created: ${date}</span>
                     </div>
                     <div class="issue-description">${issue.description || 'No description provided'}</div>
+                    <div class="issue-actions" style="margin-top: 15px; display: flex; gap: 10px;">
+                        <button class="btn btn-secondary btn-small" onclick="editIssue('${issue.id}')">Edit</button>
+                        <button class="btn btn-primary btn-small" onclick="updateIssueStatus('${issue.id}', '${issue.status}')">
+                            ${issue.status === 'Open' ? 'Mark In Progress' : issue.status === 'In Progress' ? 'Mark Closed' : 'Reopen'}
+                        </button>
+                        <button class="btn btn-primary btn-small" onclick="deleteIssue('${issue.id}')">Delete</button>
+                    </div>
                 `;
                 issuesList.appendChild(issueDiv);
             });
         }
 
+        async function editIssue(issueId) {
+            const issueToEdit = issues.find(issue => issue.id === issueId);
+            if (!issueToEdit) return;
+
+            // Populate form for editing
+            document.getElementById('issue-title').value = issueToEdit.title;
+            document.getElementById('issue-description').value = issueToEdit.description;
+            document.getElementById('issue-priority').value = issueToEdit.priority;
+            document.getElementById('issue-status').value = issueToEdit.status;
+            document.getElementById('issue-assignee').value = issueToEdit.assignee;
+
+            // Change button to update
+            const addIssueBtn = document.getElementById('add-issue-btn');
+            addIssueBtn.textContent = 'Update Issue';
+            addIssueBtn.setAttribute('data-editing-id', issueId); // Store ID for update
+            addIssueBtn.onclick = (e) => updateExistingIssue(e, issueId); // New handler for update
+        }
+
+        async function updateExistingIssue(event, issueId) {
+            event.preventDefault();
+            hideMessage('issues-error');
+
+            if (!currentUserId) {
+                await showAlert('Authentication Required', 'Please connect to Supabase or enable Demo Mode to update issues.');
+                return;
+            }
+
+            const title = document.getElementById('issue-title').value.trim();
+            const description = document.getElementById('issue-description').value.trim();
+            const priority = document.getElementById('issue-priority').value;
+            const status = document.getElementById('issue-status').value;
+            const assignee = document.getElementById('issue-assignee').value.trim();
+
+            if (!title) {
+                showMessage('issues-error', 'Issue Title is required.', 'error');
+                return;
+            }
+
+            const updatedFields = {
+                title,
+                description,
+                priority,
+                status,
+                assignee: assignee || 'Unassigned',
+                updated_at: new Date().toISOString() // Add updated_at timestamp
+            };
+
+            if (isDemoMode) {
+                const index = issues.findIndex(issue => issue.id === issueId);
+                if (index !== -1) {
+                    issues[index] = { ...issues[index], ...updatedFields };
+                    saveDataToLocalStorage();
+                    renderIssues();
+                    updateStats();
+                    showMessage('issues-success', 'Issue updated in local storage!', 'success');
+                }
+            } else if (isConnectedToSupabase && supabaseClient) {
+                showLoading('issues-loading');
+                try {
+                    const { error } = await supabaseClient
+                        .from('issues')
+                        .update(updatedFields)
+                        .eq('id', issueId)
+                        .eq('user_id', currentUserId); // Ensure only user's own issue is updated
+                    if (error) throw error;
+                    showMessage('issues-success', 'Issue updated in Supabase!', 'success');
+                    // Data will be re-rendered by the real-time listener
+                } catch (error) {
+                    console.error('Error updating issue in Supabase:', error.message);
+                    showMessage('issues-error', `Failed to update issue: ${error.message}`, 'error');
+                } finally {
+                    hideLoading('issues-loading');
+                }
+            } else {
+                showAlert('Save Error', 'Not connected to Supabase or in demo mode. Cannot update issue.');
+            }
+
+            // Reset form and button
+            document.getElementById('issue-title').value = '';
+            document.getElementById('issue-description').value = '';
+            document.getElementById('issue-assignee').value = '';
+            document.getElementById('issue-priority').value = 'Medium';
+            document.getElementById('issue-status').value = 'Open';
+            const addIssueBtn = document.getElementById('add-issue-btn');
+            addIssueBtn.textContent = 'Add Issue';
+            addIssueBtn.removeAttribute('data-editing-id');
+            addIssueBtn.onclick = addIssue; // Revert to add handler
+        }
+
+        async function updateIssueStatus(issueId, currentStatus) {
+            const nextStatusMap = {
+                'Open': 'In Progress',
+                'In Progress': 'Closed',
+                'Closed': 'Open'
+            };
+            const newStatus = nextStatusMap[currentStatus];
+
+            const confirmed = await showConfirm('Update Issue Status', `Change status to "${newStatus}"?`);
+            if (!confirmed) return;
+
+            if (!currentUserId) {
+                await showAlert('Authentication Required', 'Please connect to Supabase or enable Demo Mode to update issues.');
+                return;
+            }
+
+            if (isDemoMode) {
+                const index = issues.findIndex(issue => issue.id === issueId);
+                if (index !== -1) {
+                    issues[index].status = newStatus;
+                    issues[index].updated_at = new Date().toISOString();
+                    saveDataToLocalStorage();
+                    renderIssues();
+                    updateStats();
+                    showMessage('issues-success', `Issue status updated to ${newStatus} (local)!`, 'success');
+                }
+            } else if (isConnectedToSupabase && supabaseClient) {
+                showLoading('issues-loading');
+                try {
+                    const { error } = await supabaseClient
+                        .from('issues')
+                        .update({ status: newStatus, updated_at: new Date().toISOString() })
+                        .eq('id', issueId)
+                        .eq('user_id', currentUserId); // Ensure only user's own issue is updated
+                    if (error) throw error;
+                    showMessage('issues-success', `Issue status updated to ${newStatus} (Supabase)!`, 'success');
+                    // Data will be re-rendered by the real-time listener
+                } catch (error) {
+                    console.error('Error updating issue status in Supabase:', error.message);
+                    showMessage('issues-error', `Failed to update issue status: ${error.message}`, 'error');
+                } finally {
+                    hideLoading('issues-loading');
+                }
+            }
+        }
+
+        async function deleteIssue(issueId) {
+            const confirmed = await showConfirm('Delete Issue', 'Are you sure you want to delete this issue? This cannot be undone.');
+            if (!confirmed) return;
+
+            if (!currentUserId) {
+                await showAlert('Authentication Required', 'Please connect to Supabase or enable Demo Mode to delete issues.');
+                return;
+            }
+
+            if (isDemoMode) {
+                issues = issues.filter(issue => issue.id !== issueId);
+                saveDataToLocalStorage();
+                renderIssues();
+                updateStats();
+                showMessage('issues-success', 'Issue deleted from local storage!', 'success');
+            } else if (isConnectedToSupabase && supabaseClient) {
+                showLoading('issues-loading');
+                try {
+                    const { error } = await supabaseClient
+                        .from('issues')
+                        .delete()
+                        .eq('id', issueId)
+                        .eq('user_id', currentUserId); // Ensure only user's own issue is deleted
+                    if (error) throw error;
+                    showMessage('issues-success', 'Issue deleted from Supabase!', 'success');
+                    // Data will be re-rendered by the real-time listener
+                } catch (error) {
+                    console.error('Error deleting issue from Supabase:', error.message);
+                    showMessage('issues-error', `Failed to delete issue: ${error.message}`, 'error');
+                } finally {
+                    hideLoading('issues-loading');
+                }
+            }
+        }
+        
         function updateStats() {
             const total = issues.length;
             const open = issues.filter(issue => issue.status === 'Open').length;
@@ -1641,28 +1685,28 @@ CREATE POLICY "Users can delete their own issues" ON issues
             document.getElementById('open-issues').textContent = open;
             document.getElementById('closed-issues').textContent = closed;
         }
-
+        
         // --- Initialization on Page Load ---
         window.addEventListener('load', async () => {
             initEmptySpreadsheet();
             renderSpreadsheet(); // Initial render of empty spreadsheet
-
-            // Check if Supabase URL and Key are pre-filled (e.g., from an environment)
+            
+            // Get saved credentials
             const savedUrl = localStorage.getItem('supabaseUrl');
             const savedKey = localStorage.getItem('supabaseKey');
             if (savedUrl) document.getElementById('supabase-url').value = savedUrl;
             if (savedKey) document.getElementById('supabase-key').value = savedKey;
-
-            // Try to connect to Supabase automatically if credentials exist, otherwise default to demo mode
+            
+            setupEventListeners(); // Setup all event listeners first
+            
+            // Attempt to connect to Supabase or enable demo mode based on saved credentials
             if (savedUrl && savedKey) {
-                await initializeSupabase(savedUrl, savedKey);
+                await connectDatabase(); // This will call initializeSupabase, which now handles fetching and listeners
             } else {
-                await enableDemoMode(); // Start in demo mode by default
+                await enableDemoMode(); // If no saved credentials, go straight to demo mode
             }
-
-            setupEventListeners();
         });
-
+        
         // --- Setup All Event Listeners ---
         function setupEventListeners() {
             // Database connection buttons
@@ -1672,13 +1716,11 @@ CREATE POLICY "Users can delete their own issues" ON issues
                 localStorage.setItem('supabaseUrl', url);
                 localStorage.setItem('supabaseKey', key);
                 await connectDatabase();
-                if (isConnectedToSupabase) {
-                    setupSupabaseListeners(); // Only set up listeners if connection is successful
-                }
+                // Real-time listener setup is now handled inside initializeSupabase after successful connection
             });
             document.getElementById('demo-mode-btn').addEventListener('click', enableDemoMode);
             document.getElementById('copy-user-id-btn').addEventListener('click', copyUserId);
-
+            
             // Tab buttons
             document.getElementById('excel-tab-btn').addEventListener('click', () => switchTab('excel'));
             document.getElementById('issues-tab-btn').addEventListener('click', () => switchTab('issues'));
@@ -1694,6 +1736,8 @@ CREATE POLICY "Users can delete their own issues" ON issues
             
             // Issue form
             document.getElementById('issue-form').addEventListener('submit', addIssue);
+            // Corrected ID for "No" button in confirm modal
+            document.getElementById('confirm-cancel-no').addEventListener('click', () => {}); // No-op, handled by showConfirm
         }
     </script>
 </body>
