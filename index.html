@@ -4,10 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Apartment Manager</title>
-    <!-- Supabase Client Library - This must be loaded BEFORE your custom script -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* ALL YOUR CSS STYLES GO HERE */
+        /* --- START OF CSS STYLES --- */
         * {
             margin: 0;
             padding: 0;
@@ -224,6 +223,7 @@
             color: #856404;
             line-height: 1.5;
         }
+        /* --- END OF CSS STYLES --- */
     </style>
 </head>
 <body>
@@ -234,7 +234,6 @@
         </div>
 
         <div class="tabs">
-            <!-- Ensure data-tab-name attributes are set directly on HTML -->
             <button class="tab active" data-tab-name="ledger" onclick="showTab('ledger', event)">💰 Ledger</button>
             <button class="tab" data-tab-name="contacts" onclick="showTab('contacts', event)">📞 Contacts</button>
             <button class="tab" data-tab-name="issues" onclick="showTab('issues', event)">🔧 Issues</button>
@@ -408,8 +407,9 @@
         (async () => {
             if (SUPABASE_URL && SUPABASE_ANON_KEY) {
                 try {
-                    // *** CRUCIAL FIX: Use window.supabase.createClient() as confirmed by previous error ***
+                    // *** This is the correct way to call createClient from the CDN global object ***
                     supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                    
                     dbConnected = true;
                     updateDbStatus();
                     console.log('Supabase client initialized successfully.');
@@ -528,7 +528,7 @@
             return true;
         }
 
-        // Create table row based on table type (moved up for clarity)
+        // Create table row based on table type
         function createTableRow(table, item) {
             const row = document.createElement('tr');
             
@@ -579,11 +579,11 @@
                     tableBody.appendChild(row);
                 });
             } else {
-                console.warn(`Table body for #${table}Table tbody not found.`);
+                console.warn(`Table body for #${table}Table tbody not found. This is expected if the tab is not active.`);
             }
         }
 
-        // *** CRUCIAL FIX 2: Wrap DOM-manipulating code in DOMContentLoaded ***
+        // All DOM-related interactions and initial data loading should happen after the DOM is fully loaded.
         document.addEventListener('DOMContentLoaded', () => {
             // Set default date to today
             const ledgerDateInput = document.getElementById('ledgerDate');
@@ -649,7 +649,7 @@
                 });
             }
 
-            // Ensure the data-tab-name attribute is set correctly for tab buttons
+            // Dynamically assign data-tab-name and onclick handlers to tab buttons
             document.querySelectorAll('.tab').forEach(button => {
                 const tabText = button.textContent.toLowerCase();
                 let tabName = '';
@@ -671,7 +671,7 @@
             } else {
                 loadData('ledger'); // Default to ledger if no active tab found
             }
-            updateDbStatus(); // Ensure status is checked on load
+            // updateDbStatus() is called inside the async IIFE on initialization success/failure
         });
     </script>
 </body>
