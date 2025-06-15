@@ -1,819 +1,1405 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Landmark MSR Avenue Apartment Manager</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        /* --- START OF CSS STYLES --- */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            color: #333;
-        }
+    <meta charset="UTF-8">
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-            color: white;
-        }
+    <title>Landmark MSR Apartment Manager</title>
 
-        .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-        .tabs {
-            display: flex;
-            background: white;
-            border-radius: 10px 10px 0 0;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            overflow: hidden;
-            flex-wrap: wrap; 
-        }
+    <style>
 
-        .tab {
-            flex: 1;
-            padding: 15px 20px;
-            background: #f8f9fa;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            border-bottom: 3px solid transparent;
-            min-width: 120px; 
-            text-align: center;
-        }
+        /* --- START OF CSS STYLES --- */
 
-        .tab:hover {
-            background: #e9ecef;
-        }
+        * {
 
-        .tab.active {
-            background: white;
-            border-bottom-color: #667eea;
-            color: #667eea;
-        }
+            margin: 0;
 
-        .content {
-            background: white;
-            border-radius: 0 0 10px 10px;
-            padding: 30px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            min-height: 500px;
-        }
+            padding: 0;
 
-        .tab-content {
-            display: none;
-        }
+            box-sizing: border-box;
 
-        .tab-content.active {
-            display: block;
-        }
+        }
 
-        .form-group {
-            margin-bottom: 20px;
-        }
 
-        .form-row {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
 
-        .form-row > * {
-            flex: 1;
-        }
+        body {
 
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-            color: #495057;
-        }
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
-        input, textarea, select {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #e9ecef;
-            border-radius: 5px;
-            font-size: 14px;
-            transition: border-color 0.3s ease;
-        }
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 
-        input:focus, textarea:focus, select:focus {
-            outline: none;
-            border-color: #667eea;
-        }
+            min-height: 100vh;
 
-        button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            transition: transform 0.2s ease;
-        }
+            color: #333;
 
-        button:hover {
-            transform: translateY(-2px);
-        }
+        }
 
-        /* New class for responsive tables */
-        .table-responsive {
-            overflow-x: auto; /* Allows horizontal scrolling */
-            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-            margin-top: 20px; /* Adjust margin if needed */
-        }
 
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            border-radius: 8px;
-            overflow: hidden; /* For rounded corners */
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            min-width: 600px; /* Ensure table has a minimum width for scrolling */
-        }
 
-        .data-table th {
-            background: #f8f9fa;
-            padding: 12px;
-            text-align: left;
-            font-weight: 600;
-            color: #495057;
-            border-bottom: 2px solid #e9ecef;
-        }
+        .container {
 
-        .data-table td {
-            padding: 12px;
-            border-bottom: 1px solid #e9ecef;
-            white-space: nowrap; /* Prevent content from wrapping inside cells */
-        }
+            max-width: 1200px;
 
-        .data-table tr:hover {
-            background: #f8f9fa;
-        }
+            margin: 0 auto;
 
-        .delete-btn {
-            background: #dc3545;
-            padding: 6px 12px;
-            font-size: 12px;
-            border-radius: 3px;
-        }
+            padding: 20px;
 
-        .delete-btn:hover {
-            background: #c82333;
-        }
+        }
 
-        .status {
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
 
-        .status.open { background: #d4edda; color: #155724; }
-        .status.in-progress { background: #fff3cd; color: #856404; }
-        .status.closed { background: #d1ecf1; color: #0c5460; }
 
-        .db-status {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 10px 20px;
-            border-radius: 5px;
-            font-weight: 600;
-            font-size: 14px;
-        }
+        .header {
 
-        .db-connected {
-            background: #d4edda;
-            color: #155724;
-        }
+            text-align: center;
 
-        .db-disconnected {
-            background: #f8d7da;
-            color: #721c24;
-        }
+            margin-bottom: 30px;
 
-        .setup-notice {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            padding: 20px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-        }
+            color: white;
 
-        .setup-notice h3 {
-            color: #856404;
-            margin-bottom: 10px;
-        }
+        }
 
-        .setup-notice p {
-            color: #856404;
-            line-height: 1.5;
-        }
 
-        /* --- RESPONSIVE STYLES --- */
 
-        /* For screens smaller than 768px (common tablet portrait / larger mobile landscape) */
-        @media (max-width: 768px) {
-            body {
-                font-size: 15px;
-            }
+        .header h1 {
 
-            .container {
-                padding: 15px;
-            }
+            font-size: 2.5rem;
 
-            .header h1 {
-                font-size: 2rem;
-            }
+            margin-bottom: 10px;
 
-            .tabs {
-                border-radius: 8px 8px 0 0;
-            }
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
 
-            .tab {
-                padding: 12px 15px;
-                font-size: 15px;
-                flex: 1 1 33.33%; 
-            }
+        }
 
-            .content {
-                padding: 20px;
-                border-radius: 0 0 8px 8px;
-            }
 
-            .form-row {
-                flex-direction: column;
-                gap: 0; 
-                margin-bottom: 0;
-            }
 
-            .form-row .form-group {
-                margin-bottom: 15px;
-            }
+        .tabs {
 
-            .db-status {
-                top: 10px;
-                right: 10px;
-                padding: 8px 15px;
-                font-size: 12px;
-            }
-        }
+            display: flex;
 
-        /* For screens smaller than 480px (common mobile phones) */
-        @media (max-width: 480px) {
-            body {
-                font-size: 14px;
-            }
+            background: white;
 
-            .container {
-                padding: 10px;
-            }
+            border-radius: 10px 10px 0 0;
 
-            .header h1 {
-                font-size: 1.8rem;
-            }
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 
-            .tab {
-                padding: 10px 12px;
-                font-size: 14px;
-                flex: 1 1 100%; /* Make tabs stack fully */
-                border-bottom: 1px solid #e9ecef;
-                border-radius: 0;
-            }
-            .tabs .tab:first-child {
-                border-top-left-radius: 8px;
-                border-top-right-radius: 8px;
-            }
-            .tabs .tab:last-child {
-                border-bottom-left-radius: 8px;
-                border-bottom-right-radius: 8px;
-            }
-            .tabs .tab.active {
-                 border-bottom-color: #667eea;
-                 border-bottom-left-radius: 0;
-                 border-bottom-right-radius: 0;
-            }
+            overflow: hidden;
 
-            .content {
-                padding: 15px;
-            }
+        }
 
-            button {
-                padding: 10px 20px;
-                font-size: 14px;
-            }
 
-            .delete-btn {
-                padding: 5px 10px;
-                font-size: 11px;
-            }
 
-            .status {
-                font-size: 11px;
-            }
-        }
-        /* --- END OF CSS STYLES --- */
-    </style>
+        .tab {
+
+            flex: 1;
+
+            padding: 15px 20px;
+
+            background: #f8f9fa;
+
+            border: none;
+
+            cursor: pointer;
+
+            font-size: 16px;
+
+            font-weight: 600;
+
+            transition: all 0.3s ease;
+
+            border-bottom: 3px solid transparent;
+
+        }
+
+
+
+        .tab:hover {
+
+            background: #e9ecef;
+
+        }
+
+
+
+        .tab.active {
+
+            background: white;
+
+            border-bottom-color: #667eea;
+
+            color: #667eea;
+
+        }
+
+
+
+        .content {
+
+            background: white;
+
+            border-radius: 0 0 10px 10px;
+
+            padding: 30px;
+
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+
+            min-height: 500px;
+
+        }
+
+
+
+        .tab-content {
+
+            display: none;
+
+        }
+
+
+
+        .tab-content.active {
+
+            display: block;
+
+        }
+
+
+
+        .form-group {
+
+            margin-bottom: 20px;
+
+        }
+
+
+
+        .form-row {
+
+            display: flex;
+
+            gap: 15px;
+
+            margin-bottom: 15px;
+
+        }
+
+
+
+        .form-row > * {
+
+            flex: 1;
+
+        }
+
+
+
+        label {
+
+            display: block;
+
+            margin-bottom: 5px;
+
+            font-weight: 600;
+
+            color: #495057;
+
+        }
+
+
+
+        input, textarea, select {
+
+            width: 100%;
+
+            padding: 10px;
+
+            border: 2px solid #e9ecef;
+
+            border-radius: 5px;
+
+            font-size: 14px;
+
+            transition: border-color 0.3s ease;
+
+        }
+
+
+
+        input:focus, textarea:focus, select:focus {
+
+            outline: none;
+
+            border-color: #667eea;
+
+        }
+
+
+
+        button {
+
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+            color: white;
+
+            padding: 12px 24px;
+
+            border: none;
+
+            border-radius: 5px;
+
+            cursor: pointer;
+
+            font-size: 16px;
+
+            font-weight: 600;
+
+            transition: transform 0.2s ease;
+
+        }
+
+
+
+        button:hover {
+
+            transform: translateY(-2px);
+
+        }
+
+
+
+        .data-table {
+
+            width: 100%;
+
+            border-collapse: collapse;
+
+            margin-top: 20px;
+
+            background: white;
+
+            border-radius: 8px;
+
+            overflow: hidden;
+
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+        }
+
+
+
+        .data-table th {
+
+            background: #f8f9fa;
+
+            padding: 12px;
+
+            text-align: left;
+
+            font-weight: 600;
+
+            color: #495057;
+
+            border-bottom: 2px solid #e9ecef;
+
+        }
+
+
+
+        .data-table td {
+
+            padding: 12px;
+
+            border-bottom: 1px solid #e9ecef;
+
+        }
+
+
+
+        .data-table tr:hover {
+
+            background: #f8f9fa;
+
+        }
+
+
+
+        .delete-btn {
+
+            background: #dc3545;
+
+            padding: 6px 12px;
+
+            font-size: 12px;
+
+            border-radius: 3px;
+
+        }
+
+
+
+        .delete-btn:hover {
+
+            background: #c82333;
+
+        }
+
+
+
+        .status {
+
+            padding: 4px 8px;
+
+            border-radius: 12px;
+
+            font-size: 12px;
+
+            font-weight: 600;
+
+            text-transform: uppercase;
+
+        }
+
+
+
+        .status.open { background: #d4edda; color: #155724; }
+
+        .status.in-progress { background: #fff3cd; color: #856404; }
+
+        .status.closed { background: #d1ecf1; color: #0c5460; }
+
+
+
+        .db-status {
+
+            position: fixed;
+
+            top: 20px;
+
+            right: 20px;
+
+            padding: 10px 20px;
+
+            border-radius: 5px;
+
+            font-weight: 600;
+
+            font-size: 14px;
+
+        }
+
+
+
+        .db-connected {
+
+            background: #d4edda;
+
+            color: #155724;
+
+        }
+
+
+
+        .db-disconnected {
+
+            background: #f8d7da;
+
+            color: #721c24;
+
+        }
+
+
+
+        .setup-notice {
+
+            background: #fff3cd;
+
+            border: 1px solid #ffeaa7;
+
+            padding: 20px;
+
+            border-radius: 5px;
+
+            margin-bottom: 20px;
+
+        }
+
+
+
+        .setup-notice h3 {
+
+            color: #856404;
+
+            margin-bottom: 10px;
+
+        }
+
+
+
+        .setup-notice p {
+
+            color: #856404;
+
+            line-height: 1.5;
+
+        }
+
+        /* --- END OF CSS STYLES --- */
+
+    </style>
+
 </head>
+
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🏠 Landmark MSR Avenue Apartment Manager</h1>
-            <p>Manage your apartment ledger, contacts, and issues</p>
-        </div>
 
-        <div class="tabs">
-            <button class="tab active" data-tab-name="ledger" onclick="showTab('ledger', event)">💰 Ledger</button>
-            <button class="tab" data-tab-name="contacts" onclick="showTab('contacts', event)">📞 Contacts</button>
-            <button class="tab" data-tab-name="issues" onclick="showTab('issues', event)">🔧 Issues</button>
-        </div>
+    <div class="container">
 
-        <div class="content">
-            <div id="ledger" class="tab-content active">
-                <div class="setup-notice">
-                    <h3>⚠️ Database Setup Required</h3>
-                    <p>To use this app, you need to set up a Supabase database. Create a free account at <strong>supabase.com</strong>, create a new project, and replace the URL and API key in the JavaScript code below. Then create the required tables using the SQL provided in the comments.</p>
-                </div>
-                
-                <h2>💰 Apartment Ledger</h2>
-                <form id="ledgerForm">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="ledgerDate">Date</label>
-                            <input type="date" id="ledgerDate" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="ledgerType">Type</label>
-                            <select id="ledgerType" required>
-                                <option value="">Select Type</option>
-                                <option value="income">Income</option>
-                                <option value="expense">Expense</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="ledgerAmount">Amount</label>
-                            <input type="number" id="ledgerAmount" step="0.01" required>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="ledgerDescription">Description</label>
-                        <input type="text" id="ledgerDescription" placeholder="e.g., Rent payment, Maintenance fee" required>
-                    </div>
-                    <button type="submit">Add Entry</button>
-                </form>
-                
-                <div class="table-responsive">
-                    <table class="data-table" id="ledgerTable">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Type</th>
-                                <th>Description</th>
-                                <th>Amount</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
+        <div class="header">
 
-            <div id="contacts" class="tab-content">
-                <h2>📞 Contacts</h2>
-                <form id="contactForm">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="contactName">Name</label>
-                            <input type="text" id="contactName" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="contactPhone">Phone</label>
-                            <input type="tel" id="contactPhone" required>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="contactEmail">Email</label>
-                            <input type="email" id="contactEmail">
-                        </div>
-                        <div class="form-group">
-                            <label for="contactType">Type</label>
-                            <select id="contactType" required>
-                                <option value="">Select Type</option>
-                                <option value="landlord">Landlord</option>
-                                <option value="maintenance">Maintenance</option>
-                                <option value="neighbor">Neighbor</option>
-                                <option value="emergency">Emergency</option>
-                                <option value="other">Other</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="contactNotes">Notes</label>
-                        <textarea id="contactNotes" rows="3"></textarea>
-                    </div>
-                    <button type="submit">Add Contact</button>
-                </form>
-                
-                <div class="table-responsive">
-                    <table class="data-table" id="contactTable">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Phone</th>
-                                <th>Email</th>
-                                <th>Type</th>
-                                <th>Notes</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
+            <h1>🏠 Landmark MSR Avenue Apartment Manager</h1>
 
-            <div id="issues" class="tab-content">
-                <h2>🔧 Issues Tracker</h2>
-                <form id="issueForm">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="issueTitle">Title</label>
-                            <input type="text" id="issueTitle" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="issuePriority">Priority</label>
-                            <select id="issuePriority" required>
-                                <option value="">Select Priority</option>
-                                <option value="low">Low</option>
-                                <option value="medium">Medium</option>
-                                <option value="high">High</option>
-                                <option value="urgent">Urgent</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="issueStatus">Status</label>
-                            <select id="issueStatus" required>
-                                <option value="open">Open</option>
-                                <option value="in-progress">In Progress</option>
-                                <option value="closed">Closed</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="issueDescription">Description</label>
-                        <textarea id="issueDescription" rows="4" required></textarea>
-                    </div>
-                    <button type="submit">Add Issue</button>
-                </form>
-                
-                <div class="table-responsive">
-                    <table class="data-table" id="issueTable">
-                        <thead>
-                            <tr>
-                                <th>Title</th>
-                                <th>Priority</th>
-                                <th>Status</th>
-                                <th>Description</th>
-                                <th>Created</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
+            <p>Manage your apartment ledger, contacts, and issues</p>
 
-    <div id="dbStatus" class="db-status db-disconnected">
-        Database: Not Connected
-    </div>
-
-    <script>
-        // Supabase Configuration
-        const SUPABASE_URL = 'https://gskxwzccicetokmzoewj.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdza3h3emNjaWNldG9rbXpvZXdqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk5MjcyMjYsImV4cCI6MjA2NTUwMzIyNn0.Smz5ai8xzfnqYI3AeGoOADUNtskE9qsw5WXdOw9EuwE';
-
-        // Initialize Supabase client
-        let supabase = null;
-        let dbConnected = false;
-
-        // Self-executing async function for immediate Supabase client initialization
-        (async () => {
-            if (SUPABASE_URL && SUPABASE_ANON_KEY) {
-                try {
-                    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                    
-                    dbConnected = true;
-                    updateDbStatus(); // Update UI status
-                    console.log('Supabase client initialized successfully.');
-                } catch (error) {
-                    console.error('Failed to initialize Supabase client:', error);
-                    dbConnected = false;
-                    updateDbStatus(); // Update UI status to disconnected
-                }
-            } else {
-                dbConnected = false;
-                updateDbStatus();
-                console.warn('Supabase URL or Anon Key are missing. Please update them to connect to your database.');
-            }
-        })();
+        </div>
 
 
-        // Function to handle tab switching logic
-        function showTab(tabName, event) {
-            // Hide all tab content sections
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            
-            // Deactivate all tab buttons
-            document.querySelectorAll('.tab').forEach(tabButton => {
-                tabButton.classList.remove('active');
-            });
-            
-            // Show the selected tab's content
-            const selectedContent = document.getElementById(tabName);
-            if (selectedContent) {
-                selectedContent.classList.add('active');
-            }
-            
-            // Activate the clicked tab button
-            if (event && event.target) {
-                event.target.classList.add('active');
-            }
-            
-            // Load data specific to the newly active tab
-            loadData(tabName);
-        }
 
-        // Function to update the database connection status display
-        function updateDbStatus() {
-            const statusEl = document.getElementById('dbStatus');
-            if (statusEl) {
-                if (dbConnected) {
-                    statusEl.textContent = 'Database: Connected';
-                    statusEl.className = 'db-status db-connected';
-                    // Hide the setup notice if connected successfully
-                    document.querySelectorAll('.setup-notice').forEach(notice => {
-                        notice.style.display = 'none';
-                    });
-                } else {
-                    statusEl.textContent = 'Database: Not Connected';
-                    statusEl.className = 'db-status db-disconnected';
-                    // Show the setup notice if disconnected
-                    document.querySelectorAll('.setup-notice').forEach(notice => {
-                        notice.style.display = 'block';
-                    });
-                }
-            }
-        }
+        <div class="tabs">
 
-        // Function to insert data into a Supabase table
-        async function insertData(table, data) {
-            if (!dbConnected || !supabase) {
-                alert('Database not connected. Please set up Supabase credentials.');
-                return null;
-            }
-            const { data: insertedData, error } = await supabase
-                .from(table)
-                .insert([data])
-                .select();
+            <button class="tab active" data-tab-name="ledger" onclick="showTab('ledger', event)">💰 Ledger</button>
 
-            if (error) {
-                console.error(`Error inserting into ${table}:`, error.message);
-                alert(`Error adding item: ${error.message}`);
-                return null;
-            }
-            console.log(`Inserted into ${table}:`, insertedData);
-            return insertedData[0];
-        }
+            <button class="tab" data-tab-name="contacts" onclick="showTab('contacts', event)">📞 Contacts</button>
 
-        // Function to fetch data from a Supabase table
-        async function fetchData(table) {
-            if (!dbConnected || !supabase) return [];
+            <button class="tab" data-tab-name="issues" onclick="showTab('issues', event)">🔧 Issues</button>
 
-            const { data, error } = await supabase
-                .from(table)
-                .select('*')
-                .order('created_at', { ascending: false });
+        </div>
 
-            if (error) {
-                console.error(`Error fetching from ${table}:`, error.message);
-                alert(`Error fetching data: ${error.message}`);
-                return [];
-            }
-            console.log(`Fetched from ${table}:`, data);
-            return data;
-        }
 
-        // Function to delete data from a Supabase table
-        async function deleteData(table, id) {
-            if (confirm('Are you sure you want to delete this item?')) { 
-                if (!dbConnected || !supabase) { 
-                    alert('Database not connected. Please set up Supabase credentials.');
-                    return false;
-                }
-                const { error } = await supabase
-                    .from(table)
-                    .delete()
-                    .eq('id', id);
 
-                if (error) {
-                    console.error(`Error deleting from ${table}:`, error.message);
-                    alert(`Error deleting item: ${error.message}`);
-                    return false;
-                }
-                console.log(`Deleted from ${table} where id = ${id}`);
-                return true;
-            }
-            return false; // If user cancels confirm dialog
-        }
+        <div class="content">
 
-        // Helper function to create a table row based on the table type and item data
-        function createTableRow(table, item) {
-            const row = document.createElement('tr');
-            
-            switch (table) {
-                case 'ledger':
-                    row.innerHTML = `
-                        <td data-label="Date">${item.date}</td>
-                        <td data-label="Type">${item.type}</td>
-                        <td data-label="Description">${item.description}</td>
-                        <td data-label="Amount">₹${item.amount ? item.amount.toFixed(2) : '0.00'}</td>
-                        <td data-label="Action"><button class="delete-btn" onclick="deleteItem('ledger', ${item.id})">Delete</button></td>
-                    `;
-                    break;
-                case 'contacts':
-                    row.innerHTML = `
-                        <td data-label="Name">${item.name || '-'}</td>
-                        <td data-label="Phone">${item.phone || '-'}</td>
-                        <td data-label="Email">${item.email || '-'}</td>
-                        <td data-label="Type">${item.type || '-'}</td>
-                        <td data-label="Notes">${item.notes || '-'}</td>
-                        <td data-label="Action"><button class="delete-btn" onclick="deleteItem('contacts', ${item.id})">Delete</button></td>
-                    `;
-                    break;
-                case 'issues':
-                    row.innerHTML = `
-                        <td data-label="Title">${item.title || '-'}</td>
-                        <td data-label="Priority">${item.priority || '-'}</td>
-                        <td data-label="Status"><span class="status ${item.status || 'open'}">${item.status || 'Open'}</span></td>
-                        <td data-label="Description">${item.description || '-'}</td>
-                        <td data-label="Created">${item.created_at ? new Date(item.created_at).toLocaleDateString() : '-'}</td>
-                        <td data-label="Action"><button class="delete-btn" onclick="deleteItem('issues', ${item.id})">Delete</button></td>
-                    `;
-                    break;
-            }
-            
-            return row;
-        }
+            <div id="ledger" class="tab-content active">
 
-        // Function to load and render data into the specified table
-        async function loadData(table) {
-            const data = await fetchData(table); // Fetch data from Supabase
-            // Corrected selector to target the table within its new responsive wrapper
-            const tableBody = document.querySelector(`#${table}Table tbody`); 
+                <div class="setup-notice">
 
-            if (tableBody) { // Check if the table body exists (it won't for inactive tabs)
-                tableBody.innerHTML = ''; // Clear any existing rows
-                
-                // Append a new row for each item fetched
-                data.forEach(item => {
-                    const row = createTableRow(table, item);
-                    tableBody.appendChild(row);
-                });
-            } else {
-                console.warn(`Table body for #${table}Table tbody not found. This is expected if the tab is not active.`);
-            }
-        }
+                    <h3>⚠️ Database Setup Required</h3>
 
-        // Function to delete an item from the database and refresh the table
-        async function deleteItem(table, id) {
-            if (confirm('Are you sure you want to delete this item?')) {
-                const success = await deleteData(table, id);
-                if (success) {
-                    loadData(table); // Reload data for the current tab after deletion
-                }
-            }
-        }
+                    <p>To use this app, you need to set up a Supabase database. Create a free account at <strong>supabase.com</strong>, create a new project, and replace the URL and API key in the JavaScript code below. Then create the required tables using the SQL provided in the comments.</p>
 
-        // *** All DOM-related interactions and initial data loading should happen AFTER the DOM is fully loaded. ***
-        document.addEventListener('DOMContentLoaded', () => {
-            // Set default date for the Ledger form to today
-            const ledgerDateInput = document.getElementById('ledgerDate');
-            if (ledgerDateInput) {
-                ledgerDateInput.value = new Date().toISOString().split('T')[0];
-            }
+                </div>
 
-            // Event listener for Ledger form submission
-            const ledgerForm = document.getElementById('ledgerForm');
-            if (ledgerForm) {
-                ledgerForm.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    const data = {
-                        date: ledgerDateInput ? ledgerDateInput.value : '',
-                        type: document.getElementById('ledgerType').value,
-                        description: document.getElementById('ledgerDescription').value,
-                        amount: parseFloat(document.getElementById('ledgerAmount').value)
-                    };
-                    const result = await insertData('ledger', data);
-                    if (result) {
-                        ledgerForm.reset(); // Clear the form
-                        loadData('ledger'); // Reload ledger data
-                    }
-                });
-            }
+                
 
-            // Event listener for Contact form submission
-            const contactForm = document.getElementById('contactForm');
-            if (contactForm) {
-                contactForm.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    const data = {
-                        name: document.getElementById('contactName').value,
-                        phone: document.getElementById('contactPhone').value,
-                        email: document.getElementById('contactEmail').value,
-                        type: document.getElementById('contactType').value,
-                        notes: document.getElementById('contactNotes').value
-                    };
-                    const result = await insertData('contacts', data);
-                    if (result) {
-                        contactForm.reset(); // Clear the form
-                        loadData('contacts'); // Reload contacts data
-                    }
-                });
-            }
+                <h2>💰 Apartment Ledger</h2>
 
-            // Event listener for Issue form submission
-            const issueForm = document.getElementById('issueForm');
-            if (issueForm) {
-                issueForm.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    const data = {
-                        title: document.getElementById('issueTitle').value,
-                        description: document.getElementById('issueDescription').value,
-                        priority: document.getElementById('issuePriority').value,
-                        status: document.getElementById('issueStatus').value
-                    };
-                    const result = await insertData('issues', data);
-                    if (result) {
-                        issueForm.reset(); // Clear the form
-                        loadData('issues'); // Reload issues data
-                    }
-                });
-            }
+                <form id="ledgerForm">
 
-            // Dynamically assign data-tab-name and onclick handlers to tab buttons
-            document.querySelectorAll('.tab').forEach(button => {
-                let tabName = '';
-                // Robustly get tab name from button text content (e.g., "💰 Ledger" -> "ledger")
-                if (button.textContent.includes('Ledger')) tabName = 'ledger';
-                else if (button.textContent.includes('Contacts')) tabName = 'contacts';
-                else if (button.textContent.includes('Issues')) tabName = 'issues';
-                
-                button.setAttribute('data-tab-name', tabName); // Set a data attribute for easier lookup
-                button.onclick = (event) => showTab(tabName, event); // Assign click handler
-            });
-            
-            // Initial data load for the default active tab (Ledger) when the page loads
-            const initialTabButton = document.querySelector('.tab.active');
-            if (initialTabButton) {
-                const tabName = initialTabButton.getAttribute('data-tab-name');
-                if (tabName) {
-                    loadData(tabName);
-                }
-            } else {
-                // Fallback to load ledger if no active tab is found for some reason
-                loadData('ledger'); 
-            }
-            // The db status is already updated by the async IIFE on supabase client init
-        });
-    </script>
+                    <div class="form-row">
+
+                        <div class="form-group">
+
+                            <label for="ledgerDate">Date</label>
+
+                            <input type="date" id="ledgerDate" required>
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="ledgerType">Type</label>
+
+                            <select id="ledgerType" required>
+
+                                <option value="">Select Type</option>
+
+                                <option value="income">Income</option>
+
+                                <option value="expense">Expense</option>
+
+                            </select>
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="ledgerAmount">Amount</label>
+
+                            <input type="number" id="ledgerAmount" step="0.01" required>
+
+                        </div>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="ledgerDescription">Description</label>
+
+                        <input type="text" id="ledgerDescription" placeholder="e.g., Rent payment, Maintenance fee" required>
+
+                    </div>
+
+                    <button type="submit">Add Entry</button>
+
+                </form>
+
+                
+
+                <table class="data-table" id="ledgerTable">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Date</th>
+
+                            <th>Type</th>
+
+                            <th>Description</th>
+
+                            <th>Amount</th>
+
+                            <th>Action</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody></tbody>
+
+                </table>
+
+            </div>
+
+
+
+            <div id="contacts" class="tab-content">
+
+                <h2>📞 Contacts</h2>
+
+                <form id="contactForm">
+
+                    <div class="form-row">
+
+                        <div class="form-group">
+
+                            <label for="contactName">Name</label>
+
+                            <input type="text" id="contactName" required>
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="contactPhone">Phone</label>
+
+                            <input type="tel" id="contactPhone" required>
+
+                        </div>
+
+                    </div>
+
+                    <div class="form-row">
+
+                        <div class="form-group">
+
+                            <label for="contactEmail">Email</label>
+
+                            <input type="email" id="contactEmail">
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="contactType">Type</label>
+
+                            <select id="contactType" required>
+
+                                <option value="">Select Type</option>
+
+                                <option value="landlord">Landlord</option>
+
+                                <option value="maintenance">Maintenance</option>
+
+                                <option value="neighbor">Neighbor</option>
+
+                                <option value="emergency">Emergency</option>
+
+                                <option value="other">Other</option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="contactNotes">Notes</label>
+
+                        <textarea id="contactNotes" rows="3"></textarea>
+
+                    </div>
+
+                    <button type="submit">Add Contact</button>
+
+                </form>
+
+                
+
+                <table class="data-table" id="contactsTable">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Name</th>
+
+                            <th>Phone</th>
+
+                            <th>Email</th>
+
+                            <th>Type</th>
+
+                            <th>Notes</th>
+
+                            <th>Action</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody></tbody>
+
+                </table>
+
+            </div>
+
+
+
+            <div id="issues" class="tab-content">
+
+                <h2>🔧 Issues Tracker</h2>
+
+                <form id="issueForm">
+
+                    <div class="form-row">
+
+                        <div class="form-group">
+
+                            <label for="issueTitle">Title</label>
+
+                            <input type="text" id="issueTitle" required>
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="issuePriority">Priority</label>
+
+                            <select id="issuePriority" required>
+
+                                <option value="">Select Priority</option>
+
+                                <option value="low">Low</option>
+
+                                <option value="medium">Medium</option>
+
+                                <option value="high">High</option>
+
+                                <option value="urgent">Urgent</option>
+
+                            </select>
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="issueStatus">Status</label>
+
+                            <select id="issueStatus" required>
+
+                                <option value="open">Open</option>
+
+                                <option value="in-progress">In Progress</option>
+
+                                <option value="closed">Closed</option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="issueDescription">Description</label>
+
+                        <textarea id="issueDescription" rows="4" required></textarea>
+
+                    </div>
+
+                    <button type="submit">Add Issue</button>
+
+                </form>
+
+                
+
+                <table class="data-table" id="issuesTable">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Title</th>
+
+                            <th>Priority</th>
+
+                            <th>Status</th>
+
+                            <th>Description</th>
+
+                            <th>Created</th>
+
+                            <th>Action</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody></tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <div id="dbStatus" class="db-status db-disconnected">
+
+        Database: Not Connected
+
+    </div>
+
+
+
+    <script>
+
+        // Supabase Configuration
+
+        const SUPABASE_URL = 'https://gskxwzccicetokmzoewj.supabase.co';
+
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdza3h3emNjaWNldG9rbXpvZXdqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk5MjcyMjYsImV4cCI6MjA2NTUwMzIyNn0.Smz5ai8xzfnqYI3AeGoOADUNtskE9qsw5WXdOw9EuwE';
+
+
+
+        // Initialize Supabase client
+
+        let supabase = null;
+
+        let dbConnected = false;
+
+
+
+        // Self-executing async function for immediate Supabase client initialization
+
+        (async () => {
+
+            if (SUPABASE_URL && SUPABASE_ANON_KEY) {
+
+                try {
+
+                    // Correct way to initialize Supabase client when loaded via CDN
+
+                    // The 'supabase' object is made globally available by the CDN script.
+
+                    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+                    
+
+                    dbConnected = true;
+
+                    updateDbStatus(); // Update UI status
+
+                    console.log('Supabase client initialized successfully.');
+
+                } catch (error) {
+
+                    console.error('Failed to initialize Supabase client:', error);
+
+                    dbConnected = false;
+
+                    updateDbStatus(); // Update UI status to disconnected
+
+                }
+
+            } else {
+
+                dbConnected = false;
+
+                updateDbStatus();
+
+                console.warn('Supabase URL or Anon Key are missing. Please update them to connect to your database.');
+
+            }
+
+        })();
+
+
+
+
+
+        // Function to handle tab switching logic
+
+        function showTab(tabName, event) {
+
+            // Hide all tab content sections
+
+            document.querySelectorAll('.tab-content').forEach(content => {
+
+                content.classList.remove('active');
+
+            });
+
+            
+
+            // Deactivate all tab buttons
+
+            document.querySelectorAll('.tab').forEach(tabButton => {
+
+                tabButton.classList.remove('active');
+
+            });
+
+            
+
+            // Show the selected tab's content
+
+            const selectedContent = document.getElementById(tabName);
+
+            if (selectedContent) {
+
+                selectedContent.classList.add('active');
+
+            }
+
+            
+
+            // Activate the clicked tab button
+
+            if (event && event.target) { // 'event.target' refers to the clicked button
+
+                event.target.classList.add('active');
+
+            }
+
+            
+
+            // Load data specific to the newly active tab
+
+            loadData(tabName);
+
+        }
+
+
+
+        // Function to update the database connection status display
+
+        function updateDbStatus() {
+
+            const statusEl = document.getElementById('dbStatus');
+
+            if (statusEl) { // Ensure the status element exists
+
+                if (dbConnected) {
+
+                    statusEl.textContent = 'Database: Connected';
+
+                    statusEl.className = 'db-status db-connected';
+
+                    // Hide the setup notice if connected successfully
+
+                    document.querySelectorAll('.setup-notice').forEach(notice => {
+
+                        notice.style.display = 'none';
+
+                    });
+
+                } else {
+
+                    statusEl.textContent = 'Database: Not Connected';
+
+                    statusEl.className = 'db-status db-disconnected';
+
+                    // Show the setup notice if disconnected
+
+                    document.querySelectorAll('.setup-notice').forEach(notice => {
+
+                        notice.style.display = 'block';
+
+                    });
+
+                }
+
+            }
+
+        }
+
+
+
+        // Function to insert data into a Supabase table
+
+        async function insertData(table, data) {
+
+            if (!dbConnected || !supabase) { // Check for active connection
+
+                alert('Database not connected. Please set up Supabase credentials.');
+
+                return null;
+
+            }
+
+            const { data: insertedData, error } = await supabase
+
+                .from(table) // Specify the target table
+
+                .insert([data]) // Insert the data (as an array of objects)
+
+                .select(); // Request the inserted data back
+
+
+
+            if (error) {
+
+                console.error(`Error inserting into ${table}:`, error.message);
+
+                alert(`Error adding item: ${error.message}`);
+
+                return null;
+
+            }
+
+            console.log(`Inserted into ${table}:`, insertedData);
+
+            return insertedData[0]; // Return the first inserted record
+
+        }
+
+
+
+        // Function to fetch data from a Supabase table
+
+        async function fetchData(table) {
+
+            if (!dbConnected || !supabase) return []; // Return empty array if not connected
+
+
+
+            const { data, error } = await supabase
+
+                .from(table) // Specify the target table
+
+                .select('*') // Select all columns
+
+                .order('created_at', { ascending: false }); // Order by creation date (newest first)
+
+
+
+            if (error) {
+
+                console.error(`Error fetching from ${table}:`, error.message);
+
+                alert(`Error fetching data: ${error.message}`);
+
+                return [];
+
+            }
+
+            console.log(`Fetched from ${table}:`, data);
+
+            return data;
+
+        }
+
+
+
+        // Function to delete data from a Supabase table
+
+        async function deleteData(table, id) {
+
+            if (!dbConnected || !supabase) { // Check for active connection
+
+                alert('Database not connected. Please set up Supabase credentials.');
+
+                return false;
+
+            }
+
+            const { error } = await supabase
+
+                .from(table)
+
+                .delete()
+
+                .eq('id', id); // Condition: delete the row where 'id' matches
+
+
+
+            if (error) {
+
+                console.error(`Error deleting from ${table}:`, error.message);
+
+                alert(`Error deleting item: ${error.message}`);
+
+                return false;
+
+            }
+
+            console.log(`Deleted from ${table} where id = ${id}`);
+
+            return true;
+
+        }
+
+
+
+        // Helper function to create a table row based on the table type and item data
+
+        function createTableRow(table, item) {
+
+            const row = document.createElement('tr');
+
+            
+
+            switch (table) {
+
+                case 'ledger':
+
+                    row.innerHTML = `
+
+                        <td>${item.date}</td>
+
+                        <td>${item.type}</td>
+
+                        <td>${item.description}</td>
+
+                        <td>₹${item.amount ? item.amount.toFixed(2) : '0.00'}</td>
+
+                        <td><button class="delete-btn" onclick="deleteItem('ledger', ${item.id})">Delete</button></td>
+
+                    `;
+
+                    break;
+
+                case 'contacts':
+
+                    // Ensure these properties match your Supabase 'contacts' table columns exactly
+
+                    row.innerHTML = `
+
+                        <td>${item.name || '-'}</td>
+
+                        <td>${item.phone || '-'}</td>
+
+                        <td>${item.email || '-'}</td>
+
+                        <td>${item.type || '-'}</td>
+
+                        <td>${item.notes || '-'}</td>
+
+                        <td><button class="delete-btn" onclick="deleteItem('contacts', ${item.id})">Delete</button></td>
+
+                    `;
+
+                    break;
+
+                case 'issues':
+
+                    // Ensure these properties match your Supabase 'issues' table columns exactly
+
+                    row.innerHTML = `
+
+                        <td>${item.title || '-'}</td>
+
+                        <td>${item.priority || '-'}</td>
+
+                        <td><span class="status ${item.status || 'open'}">${item.status || 'Open'}</span></td>
+
+                        <td>${item.description || '-'}</td>
+
+                        <td>${item.created_at ? new Date(item.created_at).toLocaleDateString() : '-'}</td>
+
+                        <td><button class="delete-btn" onclick="deleteItem('issues', ${item.id})">Delete</button></td>
+
+                    `;
+
+                    break;
+
+            }
+
+            
+
+            return row;
+
+        }
+
+
+
+        // Function to load and render data into the specified table
+
+        async function loadData(table) {
+
+            const data = await fetchData(table); // Fetch data from Supabase
+
+            const tableBody = document.querySelector(`#${table}Table tbody`); // Get the table body element
+
+
+
+            if (tableBody) { // Check if the table body exists (it won't for inactive tabs)
+
+                tableBody.innerHTML = ''; // Clear any existing rows
+
+                
+
+                // Append a new row for each item fetched
+
+                data.forEach(item => {
+
+                    const row = createTableRow(table, item);
+
+                    tableBody.appendChild(row);
+
+                });
+
+            } else {
+
+                // This warning is normal for tabs that are not currently active,
+
+                // as their table bodies are not displayed.
+
+                console.warn(`Table body for #${table}Table tbody not found. This is expected if the tab is not active.`);
+
+            }
+
+        }
+
+
+
+        // Function to delete an item from the database and refresh the table
+
+        async function deleteItem(table, id) {
+
+            if (confirm('Are you sure you want to delete this item?')) {
+
+                const success = await deleteData(table, id);
+
+                if (success) {
+
+                    loadData(table); // Reload data for the current tab after deletion
+
+                }
+
+            }
+
+        }
+
+
+
+        // *** All DOM-related interactions and initial data loading should happen AFTER the DOM is fully loaded. ***
+
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // Set default date for the Ledger form to today
+
+            const ledgerDateInput = document.getElementById('ledgerDate');
+
+            if (ledgerDateInput) {
+
+                ledgerDateInput.value = new Date().toISOString().split('T')[0];
+
+            }
+
+
+
+            // Event listener for Ledger form submission
+
+            const ledgerForm = document.getElementById('ledgerForm');
+
+            if (ledgerForm) {
+
+                ledgerForm.addEventListener('submit', async (e) => {
+
+                    e.preventDefault();
+
+                    const data = {
+
+                        date: ledgerDateInput ? ledgerDateInput.value : '',
+
+                        type: document.getElementById('ledgerType').value,
+
+                        description: document.getElementById('ledgerDescription').value,
+
+                        amount: parseFloat(document.getElementById('ledgerAmount').value)
+
+                    };
+
+                    const result = await insertData('ledger', data);
+
+                    if (result) {
+
+                        ledgerForm.reset(); // Clear the form
+
+                        loadData('ledger'); // Reload ledger data
+
+                    }
+
+                });
+
+            }
+
+
+
+            // Event listener for Contact form submission
+
+            const contactForm = document.getElementById('contactForm');
+
+            if (contactForm) {
+
+                contactForm.addEventListener('submit', async (e) => {
+
+                    e.preventDefault();
+
+                    const data = {
+
+                        name: document.getElementById('contactName').value,
+
+                        phone: document.getElementById('contactPhone').value,
+
+                        email: document.getElementById('contactEmail').value,
+
+                        type: document.getElementById('contactType').value,
+
+                        notes: document.getElementById('contactNotes').value
+
+                    };
+
+                    const result = await insertData('contacts', data);
+
+                    if (result) {
+
+                        contactForm.reset(); // Clear the form
+
+                        loadData('contacts'); // Reload contacts data
+
+                    }
+
+                });
+
+            }
+
+
+
+            // Event listener for Issue form submission
+
+            const issueForm = document.getElementById('issueForm');
+
+            if (issueForm) {
+
+                issueForm.addEventListener('submit', async (e) => {
+
+                    e.preventDefault();
+
+                    const data = {
+
+                        title: document.getElementById('issueTitle').value,
+
+                        description: document.getElementById('issueDescription').value,
+
+                        priority: document.getElementById('issuePriority').value,
+
+                        status: document.getElementById('issueStatus').value
+
+                    };
+
+                    const result = await insertData('issues', data);
+
+                    if (result) {
+
+                        issueForm.reset(); // Clear the form
+
+                        loadData('issues'); // Reload issues data
+
+                    }
+
+                });
+
+            }
+
+
+
+            // Dynamically assign data-tab-name and onclick handlers to tab buttons
+
+            document.querySelectorAll('.tab').forEach(button => {
+
+                // Extract tab name from button text content (e.g., "💰 Ledger" -> "ledger")
+
+                let tabName = button.textContent.toLowerCase().split(' ')[1]; // Takes the word after the emoji
+
+                if (!tabName) { // Fallback if emoji parsing fails
+
+                    if (button.textContent.includes('Ledger')) tabName = 'ledger';
+
+                    else if (button.textContent.includes('Contacts')) tabName = 'contacts';
+
+                    else if (button.textContent.includes('Issues')) tabName = 'issues';
+
+                }
+
+                
+
+                button.setAttribute('data-tab-name', tabName); // Set a data attribute for easier lookup
+
+                button.onclick = (event) => showTab(tabName, event); // Assign click handler
+
+            });
+
+            
+
+            // Initial data load for the default active tab (Ledger) when the page loads
+
+            const initialTabButton = document.querySelector('.tab.active');
+
+            if (initialTabButton) {
+
+                const tabName = initialTabButton.getAttribute('data-tab-name');
+
+                if (tabName) {
+
+                    loadData(tabName);
+
+                }
+
+            } else {
+
+                // Fallback to load ledger if no active tab is found for some reason
+
+                loadData('ledger'); 
+
+            }
+
+            // The db status is already updated by the async IIFE on supabase client init
+
+        });
+
+    </script>
+
 </body>
+
 </html>
