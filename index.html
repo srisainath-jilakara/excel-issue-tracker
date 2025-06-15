@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Landmark MSR Apartment Manager</title>
+    <title>Landmark MSR Avenue Apartment Manager</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* --- START OF CSS STYLES --- */
@@ -44,6 +44,8 @@
             border-radius: 10px 10px 0 0;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             overflow: hidden;
+            /* Allow tabs to wrap on smaller screens */
+            flex-wrap: wrap; 
         }
 
         .tab {
@@ -56,6 +58,9 @@
             font-weight: 600;
             transition: all 0.3s ease;
             border-bottom: 3px solid transparent;
+            /* Ensure tabs take up full width if they wrap */
+            min-width: 120px; 
+            text-align: center;
         }
 
         .tab:hover {
@@ -223,6 +228,161 @@
             color: #856404;
             line-height: 1.5;
         }
+
+        /* --- RESPONSIVE STYLES --- */
+
+        /* For screens smaller than 768px (common tablet portrait / larger mobile landscape) */
+        @media (max-width: 768px) {
+            body {
+                font-size: 15px; /* Slightly smaller base font */
+            }
+
+            .container {
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 2rem; /* Smaller header font */
+            }
+
+            .tabs {
+                border-radius: 8px 8px 0 0;
+            }
+
+            .tab {
+                padding: 12px 15px;
+                font-size: 15px;
+                flex: 1 1 33.33%; /* Attempt to make them 3 in a row, or wrap */
+            }
+
+            .content {
+                padding: 20px;
+                border-radius: 0 0 8px 8px;
+            }
+
+            .form-row {
+                flex-direction: column; /* Stack form inputs vertically */
+                gap: 0; /* Remove gap when stacking */
+                margin-bottom: 0;
+            }
+
+            .form-row .form-group {
+                margin-bottom: 15px; /* Add margin between stacked form groups */
+            }
+
+            .data-table {
+                /* Make tables horizontally scrollable on small screens */
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap; /* Prevent content from wrapping inside cells */
+                -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+            }
+            
+            .data-table thead, .data-table tbody, .data-table th, .data-table td, .data-table tr {
+                display: block; /* Treat table elements as blocks for responsiveness */
+            }
+
+            .data-table tr {
+                margin-bottom: 15px;
+                border: 1px solid #e9ecef;
+                border-radius: 5px;
+                padding: 10px;
+            }
+
+            .data-table td {
+                border-bottom: none;
+                padding: 8px 12px;
+                position: relative;
+                padding-left: 50%; /* Make space for data-label content */
+                text-align: right; /* Align content to the right */
+            }
+
+            .data-table td::before {
+                /* Use data-label for column headers on small screens */
+                content: attr(data-label);
+                position: absolute;
+                left: 10px;
+                width: calc(50% - 20px);
+                padding-right: 10px;
+                white-space: nowrap;
+                text-align: left;
+                font-weight: 600;
+                color: #495057;
+            }
+
+            /* Hide original table headers for card-like layout */
+            .data-table thead tr {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+
+            .db-status {
+                top: 10px;
+                right: 10px;
+                padding: 8px 15px;
+                font-size: 12px;
+            }
+        }
+
+        /* For screens smaller than 480px (common mobile phones) */
+        @media (max-width: 480px) {
+            body {
+                font-size: 14px;
+            }
+
+            .container {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .tab {
+                padding: 10px 12px;
+                font-size: 14px;
+                flex: 1 1 100%; /* Make tabs stack fully */
+                border-bottom: 1px solid #e9ecef; /* Add border for stacked tabs */
+                border-radius: 0;
+            }
+            /* First tab in mobile view should have top-left radius, last tab bottom-right radius */
+            .tabs .tab:first-child {
+                border-top-left-radius: 8px;
+                border-top-right-radius: 8px;
+            }
+            .tabs .tab:last-child {
+                border-bottom-left-radius: 8px;
+                border-bottom-right-radius: 8px;
+            }
+            .tabs .tab.active {
+                 border-bottom-color: #667eea; /* Keep active indicator */
+                 border-bottom-left-radius: 0; /* Override if it's not the last one */
+                 border-bottom-right-radius: 0;
+            }
+
+
+            .content {
+                padding: 15px;
+            }
+
+            button {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+
+            .delete-btn {
+                padding: 5px 10px;
+                font-size: 11px;
+            }
+
+            .status {
+                font-size: 11px;
+            }
+            .data-table td::before {
+                font-size: 13px; /* Smaller label font */
+            }
+        }
         /* --- END OF CSS STYLES --- */
     </style>
 </head>
@@ -324,7 +484,7 @@
                     <button type="submit">Add Contact</button>
                 </form>
                 
-                <table class="data-table" id="contactsTable">
+                <table class="data-table" id="contactTable">
                     <thead>
                         <tr>
                             <th>Name</th>
@@ -367,13 +527,13 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="issueDescription">Description</label>
+                        <label for="issueDescription">Description</labe l>
                         <textarea id="issueDescription" rows="4" required></textarea>
                     </div>
                     <button type="submit">Add Issue</button>
                 </form>
                 
-                <table class="data-table" id="issuesTable">
+                <table class="data-table" id="issueTable">
                     <thead>
                         <tr>
                             <th>Title</th>
@@ -407,17 +567,15 @@
         (async () => {
             if (SUPABASE_URL && SUPABASE_ANON_KEY) {
                 try {
-                    // Correct way to initialize Supabase client when loaded via CDN
-                    // The 'supabase' object is made globally available by the CDN script.
                     supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
                     
                     dbConnected = true;
-                    updateDbStatus(); // Update UI status
+                    updateDbStatus();
                     console.log('Supabase client initialized successfully.');
                 } catch (error) {
                     console.error('Failed to initialize Supabase client:', error);
                     dbConnected = false;
-                    updateDbStatus(); // Update UI status to disconnected
+                    updateDbStatus();
                 }
             } else {
                 dbConnected = false;
@@ -446,7 +604,7 @@
             }
             
             // Activate the clicked tab button
-            if (event && event.target) { // 'event.target' refers to the clicked button
+            if (event && event.target) {
                 event.target.classList.add('active');
             }
             
@@ -457,7 +615,7 @@
         // Function to update the database connection status display
         function updateDbStatus() {
             const statusEl = document.getElementById('dbStatus');
-            if (statusEl) { // Ensure the status element exists
+            if (statusEl) {
                 if (dbConnected) {
                     statusEl.textContent = 'Database: Connected';
                     statusEl.className = 'db-status db-connected';
@@ -478,14 +636,14 @@
 
         // Function to insert data into a Supabase table
         async function insertData(table, data) {
-            if (!dbConnected || !supabase) { // Check for active connection
+            if (!dbConnected || !supabase) {
                 alert('Database not connected. Please set up Supabase credentials.');
                 return null;
             }
             const { data: insertedData, error } = await supabase
-                .from(table) // Specify the target table
-                .insert([data]) // Insert the data (as an array of objects)
-                .select(); // Request the inserted data back
+                .from(table)
+                .insert([data])
+                .select();
 
             if (error) {
                 console.error(`Error inserting into ${table}:`, error.message);
@@ -493,17 +651,17 @@
                 return null;
             }
             console.log(`Inserted into ${table}:`, insertedData);
-            return insertedData[0]; // Return the first inserted record
+            return insertedData[0];
         }
 
         // Function to fetch data from a Supabase table
         async function fetchData(table) {
-            if (!dbConnected || !supabase) return []; // Return empty array if not connected
+            if (!dbConnected || !supabase) return [];
 
             const { data, error } = await supabase
-                .from(table) // Specify the target table
-                .select('*') // Select all columns
-                .order('created_at', { ascending: false }); // Order by creation date (newest first)
+                .from(table)
+                .select('*')
+                .order('created_at', { ascending: false });
 
             if (error) {
                 console.error(`Error fetching from ${table}:`, error.message);
@@ -516,22 +674,25 @@
 
         // Function to delete data from a Supabase table
         async function deleteData(table, id) {
-            if (!dbConnected || !supabase) { // Check for active connection
-                alert('Database not connected. Please set up Supabase credentials.');
-                return false;
-            }
-            const { error } = await supabase
-                .from(table)
-                .delete()
-                .eq('id', id); // Condition: delete the row where 'id' matches
+            if (confirm('Are you sure you want to delete this item?')) { // Moved confirm inside as it's part of the action
+                if (!dbConnected || !supabase) { // Check for active connection
+                    alert('Database not connected. Please set up Supabase credentials.');
+                    return false;
+                }
+                const { error } = await supabase
+                    .from(table)
+                    .delete()
+                    .eq('id', id);
 
-            if (error) {
-                console.error(`Error deleting from ${table}:`, error.message);
-                alert(`Error deleting item: ${error.message}`);
-                return false;
+                if (error) {
+                    console.error(`Error deleting from ${table}:`, error.message);
+                    alert(`Error deleting item: ${error.message}`);
+                    return false;
+                }
+                console.log(`Deleted from ${table} where id = ${id}`);
+                return true;
             }
-            console.log(`Deleted from ${table} where id = ${id}`);
-            return true;
+            return false; // If user cancels confirm dialog
         }
 
         // Helper function to create a table row based on the table type and item data
@@ -541,33 +702,31 @@
             switch (table) {
                 case 'ledger':
                     row.innerHTML = `
-                        <td>${item.date}</td>
-                        <td>${item.type}</td>
-                        <td>${item.description}</td>
-                        <td>₹${item.amount ? item.amount.toFixed(2) : '0.00'}</td>
-                        <td><button class="delete-btn" onclick="deleteItem('ledger', ${item.id})">Delete</button></td>
+                        <td data-label="Date">${item.date}</td>
+                        <td data-label="Type">${item.type}</td>
+                        <td data-label="Description">${item.description}</td>
+                        <td data-label="Amount">₹${item.amount ? item.amount.toFixed(2) : '0.00'}</td>
+                        <td data-label="Action"><button class="delete-btn" onclick="deleteItem('ledger', ${item.id})">Delete</button></td>
                     `;
                     break;
                 case 'contacts':
-                    // Ensure these properties match your Supabase 'contacts' table columns exactly
                     row.innerHTML = `
-                        <td>${item.name || '-'}</td>
-                        <td>${item.phone || '-'}</td>
-                        <td>${item.email || '-'}</td>
-                        <td>${item.type || '-'}</td>
-                        <td>${item.notes || '-'}</td>
-                        <td><button class="delete-btn" onclick="deleteItem('contacts', ${item.id})">Delete</button></td>
+                        <td data-label="Name">${item.name || '-'}</td>
+                        <td data-label="Phone">${item.phone || '-'}</td>
+                        <td data-label="Email">${item.email || '-'}</td>
+                        <td data-label="Type">${item.type || '-'}</td>
+                        <td data-label="Notes">${item.notes || '-'}</td>
+                        <td data-label="Action"><button class="delete-btn" onclick="deleteItem('contacts', ${item.id})">Delete</button></td>
                     `;
                     break;
                 case 'issues':
-                    // Ensure these properties match your Supabase 'issues' table columns exactly
                     row.innerHTML = `
-                        <td>${item.title || '-'}</td>
-                        <td>${item.priority || '-'}</td>
-                        <td><span class="status ${item.status || 'open'}">${item.status || 'Open'}</span></td>
-                        <td>${item.description || '-'}</td>
-                        <td>${item.created_at ? new Date(item.created_at).toLocaleDateString() : '-'}</td>
-                        <td><button class="delete-btn" onclick="deleteItem('issues', ${item.id})">Delete</button></td>
+                        <td data-label="Title">${item.title || '-'}</td>
+                        <td data-label="Priority">${item.priority || '-'}</td>
+                        <td data-label="Status"><span class="status ${item.status || 'open'}">${item.status || 'Open'}</span></td>
+                        <td data-label="Description">${item.description || '-'}</td>
+                        <td data-label="Created">${item.created_at ? new Date(item.created_at).toLocaleDateString() : '-'}</td>
+                        <td data-label="Action"><button class="delete-btn" onclick="deleteItem('issues', ${item.id})">Delete</button></td>
                     `;
                     break;
             }
