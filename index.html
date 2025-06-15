@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Apartment Manager</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
             margin: 0;
@@ -226,14 +227,14 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🏠 Apartment Manager</h1>
+            <h1>🏠 Landmark MSR Apartment Manager</h1>
             <p>Manage your apartment ledger, contacts, and issues</p>
         </div>
 
         <div class="tabs">
-            <button class="tab active" onclick="showTab('ledger')">💰 Ledger</button>
-            <button class="tab" onclick="showTab('contacts')">📞 Contacts</button>
-            <button class="tab" onclick="showTab('issues')">🔧 Issues</button>
+            <button class="tab active" onclick="showTab('ledger', event)">💰 Ledger</button>
+            <button class="tab" onclick="showTab('contacts', event)">📞 Contacts</button>
+            <button class="tab" onclick="showTab('issues', event)">🔧 Issues</button>
         </div>
 
         <div class="content">
@@ -393,59 +394,41 @@
 
     <script>
         // Supabase Configuration
-        // Replace these with your actual Supabase project credentials
-        const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        const SUPABASE_URL = 'https://gskxwzccicetokmzoewj.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdza3h3emNjaWNldG9rbXpvZXdqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk5MjcyMjYsImV4cCI6MjA2NTUwMzIyNn0.Smz5ai8xzfnqYI3AeGoOADUNtskE9qsw5WXdOw9EuwE';
 
         // Initialize Supabase client
         let supabase = null;
         let dbConnected = false;
 
-        // Try to initialize Supabase if credentials are provided
-        if (SUPABASE_URL !== 'YOUR_SUPABASE_URL' && SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY') {
-            try {
-                // Note: In a real implementation, you'd load Supabase from CDN
-                // For now, we'll simulate the connection
-                dbConnected = true;
+        // Using a self-executing async function for immediate initialization
+        (async () => {
+            if (SUPABASE_URL && SUPABASE_ANON_KEY) { // Basic check for non-empty credentials
+                try {
+                    supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                    dbConnected = true;
+                    updateDbStatus();
+                    console.log('Supabase client initialized successfully.');
+                    // Load data for the active tab on page load
+                    const activeTab = document.querySelector('.tab.active').dataset.tabName;
+                    if (activeTab) {
+                        loadData(activeTab);
+                    }
+                } catch (error) {
+                    console.error('Failed to initialize Supabase client:', error);
+                    dbConnected = false;
+                    updateDbStatus();
+                }
+            } else {
+                dbConnected = false;
                 updateDbStatus();
-            } catch (error) {
-                console.error('Failed to connect to Supabase:', error);
+                console.warn('Supabase URL or Anon Key are missing. Please update them to connect to your database.');
             }
-        }
+        })();
 
-        // SQL to create tables (run this in your Supabase SQL editor):
-        /*
-        CREATE TABLE ledger (
-            id SERIAL PRIMARY KEY,
-            date DATE NOT NULL,
-            type VARCHAR(20) NOT NULL,
-            description TEXT NOT NULL,
-            amount DECIMAL(10,2) NOT NULL,
-            created_at TIMESTAMP DEFAULT NOW()
-        );
-
-        CREATE TABLE contacts (
-            id SERIAL PRIMARY KEY,
-            name VARCHAR(100) NOT NULL,
-            phone VARCHAR(20) NOT NULL,
-            email VARCHAR(100),
-            type VARCHAR(20) NOT NULL,
-            notes TEXT,
-            created_at TIMESTAMP DEFAULT NOW()
-        );
-
-        CREATE TABLE issues (
-            id SERIAL PRIMARY KEY,
-            title VARCHAR(200) NOT NULL,
-            description TEXT NOT NULL,
-            priority VARCHAR(20) NOT NULL,
-            status VARCHAR(20) NOT NULL,
-            created_at TIMESTAMP DEFAULT NOW()
-        );
-        */
 
         // Tab switching
-        function showTab(tabName) {
+        function showTab(tabName, event) { // Pass event object
             // Hide all tab contents
             document.querySelectorAll('.tab-content').forEach(content => {
                 content.classList.remove('active');
@@ -460,7 +443,7 @@
             document.getElementById(tabName).classList.add('active');
             
             // Add active class to clicked tab
-            event.target.classList.add('active');
+            event.target.classList.add('active'); // Use event.target here
             
             // Load data for the selected tab
             loadData(tabName);
@@ -472,40 +455,73 @@
             if (dbConnected) {
                 statusEl.textContent = 'Database: Connected';
                 statusEl.className = 'db-status db-connected';
+                // Hide the setup notice if connected
+                document.querySelectorAll('.setup-notice').forEach(notice => {
+                    notice.style.display = 'none';
+                });
             } else {
                 statusEl.textContent = 'Database: Not Connected';
                 statusEl.className = 'db-status db-disconnected';
+                 // Show the setup notice if disconnected
+                document.querySelectorAll('.setup-notice').forEach(notice => {
+                    notice.style.display = 'block';
+                });
             }
         }
 
-        // Mock database functions (replace with actual Supabase calls)
+        // Database functions using Supabase
         async function insertData(table, data) {
-            if (!dbConnected) {
+            if (!dbConnected || !supabase) {
                 alert('Database not connected. Please set up Supabase credentials.');
                 return null;
             }
-            
-            // Simulate database insert
-            const mockData = { id: Date.now(), ...data, created_at: new Date().toISOString() };
-            console.log(`Inserting into ${table}:`, mockData);
-            return mockData;
+            const { data: insertedData, error } = await supabase
+                .from(table)
+                .insert([data])
+                .select(); // Use .select() to return the inserted data
+
+            if (error) {
+                console.error(`Error inserting into ${table}:`, error.message);
+                alert(`Error adding item: ${error.message}`);
+                return null;
+            }
+            console.log(`Inserted into ${table}:`, insertedData);
+            return insertedData[0]; // Return the first (and only) inserted record
         }
 
         async function fetchData(table) {
-            if (!dbConnected) return [];
-            
-            // Simulate database fetch
-            console.log(`Fetching from ${table}`);
-            return [];
+            if (!dbConnected || !supabase) return [];
+
+            const { data, error } = await supabase
+                .from(table)
+                .select('*')
+                .order('created_at', { ascending: false }); // Order by creation date for latest entries first
+
+            if (error) {
+                console.error(`Error fetching from ${table}:`, error.message);
+                alert(`Error fetching data: ${error.message}`);
+                return [];
+            }
+            console.log(`Fetched from ${table}:`, data);
+            return data;
         }
 
         async function deleteData(table, id) {
-            if (!dbConnected) {
+            if (!dbConnected || !supabase) {
                 alert('Database not connected. Please set up Supabase credentials.');
                 return false;
             }
-            
-            console.log(`Deleting from ${table} where id = ${id}`);
+            const { error } = await supabase
+                .from(table)
+                .delete()
+                .eq('id', id); // Match by the 'id' column
+
+            if (error) {
+                console.error(`Error deleting from ${table}:`, error.message);
+                alert(`Error deleting item: ${error.message}`);
+                return false;
+            }
+            console.log(`Deleted from ${table} where id = ${id}`);
             return true;
         }
 
@@ -568,7 +584,7 @@
         async function loadData(table) {
             const data = await fetchData(table);
             const tableBody = document.querySelector(`#${table}Table tbody`);
-            tableBody.innerHTML = '';
+            tableBody.innerHTML = ''; // Clear existing rows
             
             data.forEach(item => {
                 const row = createTableRow(table, item);
@@ -620,7 +636,7 @@
             if (confirm('Are you sure you want to delete this item?')) {
                 const success = await deleteData(table, id);
                 if (success) {
-                    loadData(table);
+                    loadData(table); // Reload data after deletion
                 }
             }
         }
@@ -628,9 +644,24 @@
         // Set default date to today
         document.getElementById('ledgerDate').value = new Date().toISOString().split('T')[0];
 
-        // Initialize
-        updateDbStatus();
-        loadData('ledger');
+        // Minor adjustment for tab switching to pass 'event'
+        document.querySelectorAll('.tab').forEach(button => {
+            button.onclick = (event) => showTab(button.dataset.tabName, event);
+            button.setAttribute('data-tab-name', button.textContent.toLowerCase().replace('💰 ledger', 'ledger').replace('📞 contacts', 'contacts').replace('🔧 issues', 'issues').trim());
+        });
+        
+        // Initial load of the ledger tab data when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            const initialTab = document.querySelector('.tab.active');
+            if (initialTab) {
+                // Get the tab name from the data-tab-name attribute
+                const tabName = initialTab.getAttribute('data-tab-name');
+                if (tabName) {
+                    loadData(tabName);
+                }
+            }
+            updateDbStatus(); // Ensure status is checked on load
+        });
     </script>
 </body>
 </html>
