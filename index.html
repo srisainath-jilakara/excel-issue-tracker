@@ -403,20 +403,21 @@
         let supabase = null;
         let dbConnected = false;
 
-        // Using a self-executing async function for immediate initialization
+        // Self-executing async function for immediate Supabase client initialization
         (async () => {
             if (SUPABASE_URL && SUPABASE_ANON_KEY) {
                 try {
-                    // *** This is the correct way to call createClient from the CDN global object ***
+                    // Correct way to initialize Supabase client when loaded via CDN
+                    // The 'supabase' object is made globally available by the CDN script.
                     supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
                     
                     dbConnected = true;
-                    updateDbStatus();
+                    updateDbStatus(); // Update UI status
                     console.log('Supabase client initialized successfully.');
                 } catch (error) {
                     console.error('Failed to initialize Supabase client:', error);
                     dbConnected = false;
-                    updateDbStatus();
+                    updateDbStatus(); // Update UI status to disconnected
                 }
             } else {
                 dbConnected = false;
@@ -426,45 +427,48 @@
         })();
 
 
-        // Tab switching
+        // Function to handle tab switching logic
         function showTab(tabName, event) {
-            // Hide all tab contents
+            // Hide all tab content sections
             document.querySelectorAll('.tab-content').forEach(content => {
                 content.classList.remove('active');
             });
             
-            // Remove active class from all tabs
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
+            // Deactivate all tab buttons
+            document.querySelectorAll('.tab').forEach(tabButton => {
+                tabButton.classList.remove('active');
             });
             
-            // Show selected tab content
-            document.getElementById(tabName).classList.add('active');
+            // Show the selected tab's content
+            const selectedContent = document.getElementById(tabName);
+            if (selectedContent) {
+                selectedContent.classList.add('active');
+            }
             
-            // Add active class to clicked tab
-            if (event && event.target) {
+            // Activate the clicked tab button
+            if (event && event.target) { // 'event.target' refers to the clicked button
                 event.target.classList.add('active');
             }
             
-            // Load data for the selected tab
+            // Load data specific to the newly active tab
             loadData(tabName);
         }
 
-        // Update database status
+        // Function to update the database connection status display
         function updateDbStatus() {
             const statusEl = document.getElementById('dbStatus');
-            if (statusEl) {
+            if (statusEl) { // Ensure the status element exists
                 if (dbConnected) {
                     statusEl.textContent = 'Database: Connected';
                     statusEl.className = 'db-status db-connected';
-                    // Hide the setup notice if connected
+                    // Hide the setup notice if connected successfully
                     document.querySelectorAll('.setup-notice').forEach(notice => {
                         notice.style.display = 'none';
                     });
                 } else {
                     statusEl.textContent = 'Database: Not Connected';
                     statusEl.className = 'db-status db-disconnected';
-                     // Show the setup notice if disconnected
+                    // Show the setup notice if disconnected
                     document.querySelectorAll('.setup-notice').forEach(notice => {
                         notice.style.display = 'block';
                     });
@@ -472,16 +476,16 @@
             }
         }
 
-        // Database functions using Supabase
+        // Function to insert data into a Supabase table
         async function insertData(table, data) {
-            if (!dbConnected || !supabase) {
+            if (!dbConnected || !supabase) { // Check for active connection
                 alert('Database not connected. Please set up Supabase credentials.');
                 return null;
             }
             const { data: insertedData, error } = await supabase
-                .from(table)
-                .insert([data])
-                .select();
+                .from(table) // Specify the target table
+                .insert([data]) // Insert the data (as an array of objects)
+                .select(); // Request the inserted data back
 
             if (error) {
                 console.error(`Error inserting into ${table}:`, error.message);
@@ -489,16 +493,17 @@
                 return null;
             }
             console.log(`Inserted into ${table}:`, insertedData);
-            return insertedData[0];
+            return insertedData[0]; // Return the first inserted record
         }
 
+        // Function to fetch data from a Supabase table
         async function fetchData(table) {
-            if (!dbConnected || !supabase) return [];
+            if (!dbConnected || !supabase) return []; // Return empty array if not connected
 
             const { data, error } = await supabase
-                .from(table)
-                .select('*')
-                .order('created_at', { ascending: false });
+                .from(table) // Specify the target table
+                .select('*') // Select all columns
+                .order('created_at', { ascending: false }); // Order by creation date (newest first)
 
             if (error) {
                 console.error(`Error fetching from ${table}:`, error.message);
@@ -509,15 +514,16 @@
             return data;
         }
 
+        // Function to delete data from a Supabase table
         async function deleteData(table, id) {
-            if (!dbConnected || !supabase) {
+            if (!dbConnected || !supabase) { // Check for active connection
                 alert('Database not connected. Please set up Supabase credentials.');
                 return false;
             }
             const { error } = await supabase
                 .from(table)
                 .delete()
-                .eq('id', id);
+                .eq('id', id); // Condition: delete the row where 'id' matches
 
             if (error) {
                 console.error(`Error deleting from ${table}:`, error.message);
@@ -528,7 +534,7 @@
             return true;
         }
 
-        // Create table row based on table type
+        // Helper function to create a table row based on the table type and item data
         function createTableRow(table, item) {
             const row = document.createElement('tr');
             
@@ -543,22 +549,24 @@
                     `;
                     break;
                 case 'contacts':
+                    // Ensure these properties match your Supabase 'contacts' table columns exactly
                     row.innerHTML = `
-                        <td>${item.name}</td>
-                        <td>${item.phone}</td>
+                        <td>${item.name || '-'}</td>
+                        <td>${item.phone || '-'}</td>
                         <td>${item.email || '-'}</td>
-                        <td>${item.type}</td>
+                        <td>${item.type || '-'}</td>
                         <td>${item.notes || '-'}</td>
                         <td><button class="delete-btn" onclick="deleteItem('contacts', ${item.id})">Delete</button></td>
                     `;
                     break;
                 case 'issues':
+                    // Ensure these properties match your Supabase 'issues' table columns exactly
                     row.innerHTML = `
-                        <td>${item.title}</td>
-                        <td>${item.priority}</td>
-                        <td><span class="status ${item.status}">${item.status}</span></td>
-                        <td>${item.description}</td>
-                        <td>${new Date(item.created_at).toLocaleDateString()}</td>
+                        <td>${item.title || '-'}</td>
+                        <td>${item.priority || '-'}</td>
+                        <td><span class="status ${item.status || 'open'}">${item.status || 'Open'}</span></td>
+                        <td>${item.description || '-'}</td>
+                        <td>${item.created_at ? new Date(item.created_at).toLocaleDateString() : '-'}</td>
                         <td><button class="delete-btn" onclick="deleteItem('issues', ${item.id})">Delete</button></td>
                     `;
                     break;
@@ -567,31 +575,45 @@
             return row;
         }
 
-        // Load data for tables
+        // Function to load and render data into the specified table
         async function loadData(table) {
-            const data = await fetchData(table);
-            const tableBody = document.querySelector(`#${table}Table tbody`);
-            if (tableBody) {
-                tableBody.innerHTML = ''; // Clear existing rows
+            const data = await fetchData(table); // Fetch data from Supabase
+            const tableBody = document.querySelector(`#${table}Table tbody`); // Get the table body element
+
+            if (tableBody) { // Check if the table body exists (it won't for inactive tabs)
+                tableBody.innerHTML = ''; // Clear any existing rows
                 
+                // Append a new row for each item fetched
                 data.forEach(item => {
                     const row = createTableRow(table, item);
                     tableBody.appendChild(row);
                 });
             } else {
+                // This warning is normal for tabs that are not currently active,
+                // as their table bodies are not displayed.
                 console.warn(`Table body for #${table}Table tbody not found. This is expected if the tab is not active.`);
             }
         }
 
-        // All DOM-related interactions and initial data loading should happen after the DOM is fully loaded.
+        // Function to delete an item from the database and refresh the table
+        async function deleteItem(table, id) {
+            if (confirm('Are you sure you want to delete this item?')) {
+                const success = await deleteData(table, id);
+                if (success) {
+                    loadData(table); // Reload data for the current tab after deletion
+                }
+            }
+        }
+
+        // *** All DOM-related interactions and initial data loading should happen AFTER the DOM is fully loaded. ***
         document.addEventListener('DOMContentLoaded', () => {
-            // Set default date to today
+            // Set default date for the Ledger form to today
             const ledgerDateInput = document.getElementById('ledgerDate');
             if (ledgerDateInput) {
                 ledgerDateInput.value = new Date().toISOString().split('T')[0];
             }
 
-            // Ledger functions
+            // Event listener for Ledger form submission
             const ledgerForm = document.getElementById('ledgerForm');
             if (ledgerForm) {
                 ledgerForm.addEventListener('submit', async (e) => {
@@ -604,13 +626,13 @@
                     };
                     const result = await insertData('ledger', data);
                     if (result) {
-                        ledgerForm.reset();
-                        loadData('ledger');
+                        ledgerForm.reset(); // Clear the form
+                        loadData('ledger'); // Reload ledger data
                     }
                 });
             }
 
-            // Contact functions
+            // Event listener for Contact form submission
             const contactForm = document.getElementById('contactForm');
             if (contactForm) {
                 contactForm.addEventListener('submit', async (e) => {
@@ -624,13 +646,13 @@
                     };
                     const result = await insertData('contacts', data);
                     if (result) {
-                        contactForm.reset();
-                        loadData('contacts');
+                        contactForm.reset(); // Clear the form
+                        loadData('contacts'); // Reload contacts data
                     }
                 });
             }
 
-            // Issue functions
+            // Event listener for Issue form submission
             const issueForm = document.getElementById('issueForm');
             if (issueForm) {
                 issueForm.addEventListener('submit', async (e) => {
@@ -643,25 +665,27 @@
                     };
                     const result = await insertData('issues', data);
                     if (result) {
-                        issueForm.reset();
-                        loadData('issues');
+                        issueForm.reset(); // Clear the form
+                        loadData('issues'); // Reload issues data
                     }
                 });
             }
 
-            // Dynamically assign data-tab-name and onclick handlers to tab buttons
+            // Initialize tab button functionality
             document.querySelectorAll('.tab').forEach(button => {
-                const tabText = button.textContent.toLowerCase();
-                let tabName = '';
-                if (tabText.includes('ledger')) tabName = 'ledger';
-                else if (tabText.includes('contacts')) tabName = 'contacts';
-                else if (tabText.includes('issues')) tabName = 'issues';
+                // Extract tab name from button text content (e.g., "💰 Ledger" -> "ledger")
+                let tabName = button.textContent.toLowerCase().split(' ')[1]; // Takes the word after the emoji
+                if (!tabName) { // Fallback if emoji parsing fails
+                    if (button.textContent.includes('Ledger')) tabName = 'ledger';
+                    else if (button.textContent.includes('Contacts')) tabName = 'contacts';
+                    else if (button.textContent.includes('Issues')) tabName = 'issues';
+                }
                 
-                button.setAttribute('data-tab-name', tabName);
-                button.onclick = (event) => showTab(tabName, event);
+                button.setAttribute('data-tab-name', tabName); // Set a data attribute for easier lookup
+                button.onclick = (event) => showTab(tabName, event); // Assign click handler
             });
             
-            // Initial load of the active tab's data when the page loads
+            // Initial data load for the default active tab (Ledger) when the page loads
             const initialTabButton = document.querySelector('.tab.active');
             if (initialTabButton) {
                 const tabName = initialTabButton.getAttribute('data-tab-name');
@@ -669,9 +693,10 @@
                     loadData(tabName);
                 }
             } else {
-                loadData('ledger'); // Default to ledger if no active tab found
+                // Fallback to load ledger if no active tab is found for some reason
+                loadData('ledger'); 
             }
-            // updateDbStatus() is called inside the async IIFE on initialization success/failure
+            // The db status is already updated by the async IIFE on supabase client init
         });
     </script>
 </body>
