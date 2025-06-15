@@ -4,12 +4,393 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Apartment Manager</title>
+    <!-- Supabase Client Library - This must be loaded BEFORE your custom script -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* ... your CSS styles ... */
+        /* ALL YOUR CSS STYLES GO HERE */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .tabs {
+            display: flex;
+            background: white;
+            border-radius: 10px 10px 0 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab:hover {
+            background: #e9ecef;
+        }
+
+        .tab.active {
+            background: white;
+            border-bottom-color: #667eea;
+            color: #667eea;
+        }
+
+        .content {
+            background: white;
+            border-radius: 0 0 10px 10px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            min-height: 500px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-row > * {
+            flex: 1;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: transform 0.2s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .data-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 3px;
+        }
+
+        .delete-btn:hover {
+            background: #c82333;
+        }
+
+        .status {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status.open { background: #d4edda; color: #155724; }
+        .status.in-progress { background: #fff3cd; color: #856404; }
+        .status.closed { background: #d1ecf1; color: #0c5460; }
+
+        .db-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .db-connected {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .db-disconnected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .setup-notice {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .setup-notice h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .setup-notice p {
+            color: #856404;
+            line-height: 1.5;
+        }
     </style>
 </head>
 <body>
+    <div class="container">
+        <div class="header">
+            <h1>🏠 Apartment Manager</h1>
+            <p>Manage your apartment ledger, contacts, and issues</p>
+        </div>
+
+        <div class="tabs">
+            <!-- Ensure data-tab-name attributes are set directly on HTML -->
+            <button class="tab active" data-tab-name="ledger" onclick="showTab('ledger', event)">💰 Ledger</button>
+            <button class="tab" data-tab-name="contacts" onclick="showTab('contacts', event)">📞 Contacts</button>
+            <button class="tab" data-tab-name="issues" onclick="showTab('issues', event)">🔧 Issues</button>
+        </div>
+
+        <div class="content">
+            <div id="ledger" class="tab-content active">
+                <div class="setup-notice">
+                    <h3>⚠️ Database Setup Required</h3>
+                    <p>To use this app, you need to set up a Supabase database. Create a free account at <strong>supabase.com</strong>, create a new project, and replace the URL and API key in the JavaScript code below. Then create the required tables using the SQL provided in the comments.</p>
+                </div>
+                
+                <h2>💰 Apartment Ledger</h2>
+                <form id="ledgerForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="ledgerDate">Date</label>
+                            <input type="date" id="ledgerDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="ledgerType">Type</label>
+                            <select id="ledgerType" required>
+                                <option value="">Select Type</option>
+                                <option value="income">Income</option>
+                                <option value="expense">Expense</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="ledgerAmount">Amount</label>
+                            <input type="number" id="ledgerAmount" step="0.01" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="ledgerDescription">Description</label>
+                        <input type="text" id="ledgerDescription" placeholder="e.g., Rent payment, Maintenance fee" required>
+                    </div>
+                    <button type="submit">Add Entry</button>
+                </form>
+                
+                <table class="data-table" id="ledgerTable">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                            <th>Amount</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div id="contacts" class="tab-content">
+                <h2>📞 Contacts</h2>
+                <form id="contactForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="contactName">Name</label>
+                            <input type="text" id="contactName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contactPhone">Phone</label>
+                            <input type="tel" id="contactPhone" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="contactEmail">Email</label>
+                            <input type="email" id="contactEmail">
+                        </div>
+                        <div class="form-group">
+                            <label for="contactType">Type</label>
+                            <select id="contactType" required>
+                                <option value="">Select Type</option>
+                                <option value="landlord">Landlord</option>
+                                <option value="maintenance">Maintenance</option>
+                                <option value="neighbor">Neighbor</option>
+                                <option value="emergency">Emergency</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="contactNotes">Notes</label>
+                        <textarea id="contactNotes" rows="3"></textarea>
+                    </div>
+                    <button type="submit">Add Contact</button>
+                </form>
+                
+                <table class="data-table" id="contactTable">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Phone</th>
+                            <th>Email</th>
+                            <th>Type</th>
+                            <th>Notes</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div id="issues" class="tab-content">
+                <h2>🔧 Issues Tracker</h2>
+                <form id="issueForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="issueTitle">Title</label>
+                            <input type="text" id="issueTitle" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="issuePriority">Priority</label>
+                            <select id="issuePriority" required>
+                                <option value="">Select Priority</option>
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                                <option value="urgent">Urgent</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="issueStatus">Status</label>
+                            <select id="issueStatus" required>
+                                <option value="open">Open</option>
+                                <option value="in-progress">In Progress</option>
+                                <option value="closed">Closed</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="issueDescription">Description</label>
+                        <textarea id="issueDescription" rows="4" required></textarea>
+                    </div>
+                    <button type="submit">Add Issue</button>
+                </form>
+                
+                <table class="data-table" id="issueTable">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Description</th>
+                            <th>Created</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
     <div id="dbStatus" class="db-status db-disconnected">
         Database: Not Connected
     </div>
@@ -27,12 +408,11 @@
         (async () => {
             if (SUPABASE_URL && SUPABASE_ANON_KEY) {
                 try {
-                    // *** CRUCIAL FIX 1: Use window.supabase.createClient() ***
+                    // *** CRUCIAL FIX: Use window.supabase.createClient() as confirmed by previous error ***
                     supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
                     dbConnected = true;
                     updateDbStatus();
                     console.log('Supabase client initialized successfully.');
-                    // Initial load of data will be handled by DOMContentLoaded below
                 } catch (error) {
                     console.error('Failed to initialize Supabase client:', error);
                     dbConnected = false;
@@ -62,7 +442,7 @@
             document.getElementById(tabName).classList.add('active');
             
             // Add active class to clicked tab
-            if (event && event.target) { // Added a check for event and target existence
+            if (event && event.target) {
                 event.target.classList.add('active');
             }
             
@@ -73,7 +453,7 @@
         // Update database status
         function updateDbStatus() {
             const statusEl = document.getElementById('dbStatus');
-            if (statusEl) { // Added a check if statusEl exists
+            if (statusEl) {
                 if (dbConnected) {
                     statusEl.textContent = 'Database: Connected';
                     statusEl.className = 'db-status db-connected';
@@ -84,7 +464,7 @@
                 } else {
                     statusEl.textContent = 'Database: Not Connected';
                     statusEl.className = 'db-status db-disconnected';
-                    // Show the setup notice if disconnected
+                     // Show the setup notice if disconnected
                     document.querySelectorAll('.setup-notice').forEach(notice => {
                         notice.style.display = 'block';
                     });
@@ -118,7 +498,7 @@
             const { data, error } = await supabase
                 .from(table)
                 .select('*')
-                .order('created_at', { ascending: false }); // Sort by creation date, newest first
+                .order('created_at', { ascending: false });
 
             if (error) {
                 console.error(`Error fetching from ${table}:`, error.message);
@@ -191,7 +571,7 @@
         async function loadData(table) {
             const data = await fetchData(table);
             const tableBody = document.querySelector(`#${table}Table tbody`);
-            if (tableBody) { // Ensure tableBody exists before trying to manipulate it
+            if (tableBody) {
                 tableBody.innerHTML = ''; // Clear existing rows
                 
                 data.forEach(item => {
@@ -278,8 +658,7 @@
                 else if (tabText.includes('issues')) tabName = 'issues';
                 
                 button.setAttribute('data-tab-name', tabName);
-                // Re-assign onclick to ensure it uses the correct tabName and event
-                button.onclick = (event) => showTab(tabName, event); 
+                button.onclick = (event) => showTab(tabName, event);
             });
             
             // Initial load of the active tab's data when the page loads
