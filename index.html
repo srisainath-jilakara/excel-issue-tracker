@@ -27,22 +27,12 @@
         (async () => {
             if (SUPABASE_URL && SUPABASE_ANON_KEY) {
                 try {
-                    // *** THIS IS THE CRUCIAL CHANGE: Call createClient() directly, not supabaseJs.createClient() ***
-                    supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                    // *** CRUCIAL FIX 1: Use window.supabase.createClient() ***
+                    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
                     dbConnected = true;
                     updateDbStatus();
                     console.log('Supabase client initialized successfully.');
-                    // Load data for the active tab on page load
-                    const activeTabButton = document.querySelector('.tab.active');
-                    if (activeTabButton) {
-                        const tabName = activeTabButton.getAttribute('data-tab-name');
-                        if (tabName) {
-                            loadData(tabName);
-                        }
-                    } else {
-                        // Default to ledger if no active tab found on load
-                        loadData('ledger');
-                    }
+                    // Initial load of data will be handled by DOMContentLoaded below
                 } catch (error) {
                     console.error('Failed to initialize Supabase client:', error);
                     dbConnected = false;
@@ -72,7 +62,9 @@
             document.getElementById(tabName).classList.add('active');
             
             // Add active class to clicked tab
-            event.target.classList.add('active');
+            if (event && event.target) { // Added a check for event and target existence
+                event.target.classList.add('active');
+            }
             
             // Load data for the selected tab
             loadData(tabName);
@@ -81,20 +73,22 @@
         // Update database status
         function updateDbStatus() {
             const statusEl = document.getElementById('dbStatus');
-            if (dbConnected) {
-                statusEl.textContent = 'Database: Connected';
-                statusEl.className = 'db-status db-connected';
-                // Hide the setup notice if connected
-                document.querySelectorAll('.setup-notice').forEach(notice => {
-                    notice.style.display = 'none';
-                });
-            } else {
-                statusEl.textContent = 'Database: Not Connected';
-                statusEl.className = 'db-status db-disconnected';
-                 // Show the setup notice if disconnected
-                document.querySelectorAll('.setup-notice').forEach(notice => {
-                    notice.style.display = 'block';
-                });
+            if (statusEl) { // Added a check if statusEl exists
+                if (dbConnected) {
+                    statusEl.textContent = 'Database: Connected';
+                    statusEl.className = 'db-status db-connected';
+                    // Hide the setup notice if connected
+                    document.querySelectorAll('.setup-notice').forEach(notice => {
+                        notice.style.display = 'none';
+                    });
+                } else {
+                    statusEl.textContent = 'Database: Not Connected';
+                    statusEl.className = 'db-status db-disconnected';
+                    // Show the setup notice if disconnected
+                    document.querySelectorAll('.setup-notice').forEach(notice => {
+                        notice.style.display = 'block';
+                    });
+                }
             }
         }
 
@@ -124,7 +118,7 @@
             const { data, error } = await supabase
                 .from(table)
                 .select('*')
-                .order('created_at', { ascending: false });
+                .order('created_at', { ascending: false }); // Sort by creation date, newest first
 
             if (error) {
                 console.error(`Error fetching from ${table}:`, error.message);
@@ -154,74 +148,7 @@
             return true;
         }
 
-        // Ledger functions
-        document.getElementById('ledgerForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const data = {
-                date: document.getElementById('ledgerDate').value,
-                type: document.getElementById('ledgerType').value,
-                description: document.getElementById('ledgerDescription').value,
-                amount: parseFloat(document.getElementById('ledgerAmount').value)
-            };
-            
-            const result = await insertData('ledger', data);
-            if (result) {
-                document.getElementById('ledgerForm').reset();
-                loadData('ledger');
-            }
-        });
-
-        // Contact functions
-        document.getElementById('contactForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const data = {
-                name: document.getElementById('contactName').value,
-                phone: document.getElementById('contactPhone').value,
-                email: document.getElementById('contactEmail').value,
-                type: document.getElementById('contactType').value,
-                notes: document.getElementById('contactNotes').value
-            };
-            
-            const result = await insertData('contacts', data);
-            if (result) {
-                document.getElementById('contactForm').reset();
-                loadData('contacts');
-            }
-        });
-
-        // Issue functions
-        document.getElementById('issueForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const data = {
-                title: document.getElementById('issueTitle').value,
-                description: document.getElementById('issueDescription').value,
-                priority: document.getElementById('issuePriority').value,
-                status: document.getElementById('issueStatus').value
-            };
-            
-            const result = await insertData('issues', data);
-            if (result) {
-                document.getElementById('issueForm').reset();
-                loadData('issues');
-            }
-        });
-
-        // Load data for tables
-        async function loadData(table) {
-            const data = await fetchData(table);
-            const tableBody = document.querySelector(`#${table}Table tbody`);
-            tableBody.innerHTML = '';
-            
-            data.forEach(item => {
-                const row = createTableRow(table, item);
-                tableBody.appendChild(row);
-            });
-        }
-
-        // Create table row based on table type
+        // Create table row based on table type (moved up for clarity)
         function createTableRow(table, item) {
             const row = document.createElement('tr');
             
@@ -231,7 +158,7 @@
                         <td>${item.date}</td>
                         <td>${item.type}</td>
                         <td>${item.description}</td>
-                        <td>$${item.amount.toFixed(2)}</td>
+                        <td>$${item.amount ? item.amount.toFixed(2) : '0.00'}</td>
                         <td><button class="delete-btn" onclick="deleteItem('ledger', ${item.id})">Delete</button></td>
                     `;
                     break;
@@ -260,33 +187,102 @@
             return row;
         }
 
-        // Delete item
-        async function deleteItem(table, id) {
-            if (confirm('Are you sure you want to delete this item?')) {
-                const success = await deleteData(table, id);
-                if (success) {
-                    loadData(table);
-                }
+        // Load data for tables
+        async function loadData(table) {
+            const data = await fetchData(table);
+            const tableBody = document.querySelector(`#${table}Table tbody`);
+            if (tableBody) { // Ensure tableBody exists before trying to manipulate it
+                tableBody.innerHTML = ''; // Clear existing rows
+                
+                data.forEach(item => {
+                    const row = createTableRow(table, item);
+                    tableBody.appendChild(row);
+                });
+            } else {
+                console.warn(`Table body for #${table}Table tbody not found.`);
             }
         }
 
-        // Set default date to today
-        document.getElementById('ledgerDate').value = new Date().toISOString().split('T')[0];
-
-        // Ensure the data-tab-name attribute is set correctly for tab buttons
-        document.querySelectorAll('.tab').forEach(button => {
-            const tabText = button.textContent.toLowerCase();
-            let tabName = '';
-            if (tabText.includes('ledger')) tabName = 'ledger';
-            else if (tabText.includes('contacts')) tabName = 'contacts';
-            else if (tabText.includes('issues')) tabName = 'issues';
-            
-            button.setAttribute('data-tab-name', tabName); // Set the attribute here
-            button.onclick = (event) => showTab(tabName, event); // Pass tabName directly
-        });
-        
-        // Initial load of the active tab's data when the page loads
+        // *** CRUCIAL FIX 2: Wrap DOM-manipulating code in DOMContentLoaded ***
         document.addEventListener('DOMContentLoaded', () => {
+            // Set default date to today
+            const ledgerDateInput = document.getElementById('ledgerDate');
+            if (ledgerDateInput) {
+                ledgerDateInput.value = new Date().toISOString().split('T')[0];
+            }
+
+            // Ledger functions
+            const ledgerForm = document.getElementById('ledgerForm');
+            if (ledgerForm) {
+                ledgerForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const data = {
+                        date: ledgerDateInput ? ledgerDateInput.value : '',
+                        type: document.getElementById('ledgerType').value,
+                        description: document.getElementById('ledgerDescription').value,
+                        amount: parseFloat(document.getElementById('ledgerAmount').value)
+                    };
+                    const result = await insertData('ledger', data);
+                    if (result) {
+                        ledgerForm.reset();
+                        loadData('ledger');
+                    }
+                });
+            }
+
+            // Contact functions
+            const contactForm = document.getElementById('contactForm');
+            if (contactForm) {
+                contactForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const data = {
+                        name: document.getElementById('contactName').value,
+                        phone: document.getElementById('contactPhone').value,
+                        email: document.getElementById('contactEmail').value,
+                        type: document.getElementById('contactType').value,
+                        notes: document.getElementById('contactNotes').value
+                    };
+                    const result = await insertData('contacts', data);
+                    if (result) {
+                        contactForm.reset();
+                        loadData('contacts');
+                    }
+                });
+            }
+
+            // Issue functions
+            const issueForm = document.getElementById('issueForm');
+            if (issueForm) {
+                issueForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const data = {
+                        title: document.getElementById('issueTitle').value,
+                        description: document.getElementById('issueDescription').value,
+                        priority: document.getElementById('issuePriority').value,
+                        status: document.getElementById('issueStatus').value
+                    };
+                    const result = await insertData('issues', data);
+                    if (result) {
+                        issueForm.reset();
+                        loadData('issues');
+                    }
+                });
+            }
+
+            // Ensure the data-tab-name attribute is set correctly for tab buttons
+            document.querySelectorAll('.tab').forEach(button => {
+                const tabText = button.textContent.toLowerCase();
+                let tabName = '';
+                if (tabText.includes('ledger')) tabName = 'ledger';
+                else if (tabText.includes('contacts')) tabName = 'contacts';
+                else if (tabText.includes('issues')) tabName = 'issues';
+                
+                button.setAttribute('data-tab-name', tabName);
+                // Re-assign onclick to ensure it uses the correct tabName and event
+                button.onclick = (event) => showTab(tabName, event); 
+            });
+            
+            // Initial load of the active tab's data when the page loads
             const initialTabButton = document.querySelector('.tab.active');
             if (initialTabButton) {
                 const tabName = initialTabButton.getAttribute('data-tab-name');
@@ -294,8 +290,7 @@
                     loadData(tabName);
                 }
             } else {
-                // Fallback: If no active tab is found (e.g., initial load), load ledger by default
-                loadData('ledger');
+                loadData('ledger'); // Default to ledger if no active tab found
             }
             updateDbStatus(); // Ensure status is checked on load
         });
