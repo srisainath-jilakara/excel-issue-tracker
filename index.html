@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apartment Manager</title>
+    <title>Landmark MSR Apartment Manager</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* --- START OF CSS STYLES --- */
@@ -544,7 +544,7 @@
                         <td>${item.date}</td>
                         <td>${item.type}</td>
                         <td>${item.description}</td>
-                        <td>$${item.amount ? item.amount.toFixed(2) : '0.00'}</td>
+                        <td>₹${item.amount ? item.amount.toFixed(2) : '0.00'}</td>
                         <td><button class="delete-btn" onclick="deleteItem('ledger', ${item.id})">Delete</button></td>
                     `;
                     break;
@@ -671,7 +671,7 @@
                 });
             }
 
-            // Initialize tab button functionality
+            // Dynamically assign data-tab-name and onclick handlers to tab buttons
             document.querySelectorAll('.tab').forEach(button => {
                 // Extract tab name from button text content (e.g., "💰 Ledger" -> "ledger")
                 let tabName = button.textContent.toLowerCase().split(' ')[1]; // Takes the word after the emoji
